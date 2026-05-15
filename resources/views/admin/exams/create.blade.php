@@ -152,7 +152,7 @@ function loadConfigSubjects(selectEl, index) {
     const subjectSel = row.querySelector('.subject-config-select');
     subjectSel.innerHTML = '<option value="">-- جاري التحميل --</option>';
     if (!gradeId) { subjectSel.innerHTML = '<option value="">-- اختر المادة --</option>'; return; }
-    fetch(`/admin/subjects/by-grade/${gradeId}`)
+    fetch(`{{ url('admin/subjects/by-grade') }}/${gradeId}`)
         .then(r => r.json())
         .then(subs => {
             subjectSel.innerHTML = '<option value="">-- اختر المادة --</option>';

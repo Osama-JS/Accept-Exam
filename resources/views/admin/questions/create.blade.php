@@ -162,7 +162,7 @@ function loadSubjects(gradeId) {
     const sel = document.getElementById('subject-select');
     sel.innerHTML = '<option value="">-- جاري التحميل --</option>';
     if (!gradeId) { sel.innerHTML = '<option value="">-- اختر المادة --</option>'; return; }
-    fetch(`/admin/subjects/by-grade/${gradeId}`)
+    fetch(`{{ url('admin/subjects/by-grade') }}/${gradeId}`)
         .then(r => r.json())
         .then(subjects => {
             sel.innerHTML = '<option value="">-- اختر المادة --</option>';

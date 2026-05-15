@@ -17,13 +17,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ─── Admin ───
-        $admin = Admin::firstOrCreate(
-            ['email' => 'admin@school.com'],
-            [
-                'name'     => 'مدير النظام',
-                'password' => Hash::make('admin123'),
-            ]
-        );
+        $this->call(AdminSeeder::class);
 
         // ─── Academic Years ───
         $year = AcademicYear::create(['name' => '2024-2025', 'is_current' => true]);

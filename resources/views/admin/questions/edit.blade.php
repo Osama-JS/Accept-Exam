@@ -112,7 +112,7 @@ function removeChoice(btn) {
 function loadSubjects(gradeId, selectedId) {
     const sel = document.getElementById('subject-select');
     if (!gradeId) return;
-    fetch(`/admin/subjects/by-grade/${gradeId}`)
+    fetch(`{{ url('admin/subjects/by-grade') }}/${gradeId}`)
         .then(r => r.json())
         .then(subs => {
             sel.innerHTML = '';
