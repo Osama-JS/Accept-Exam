@@ -3,23 +3,27 @@
 
 @push('styles')
 <style>
-.register-section { max-width: 680px; margin: 40px auto; padding: 0 24px; }
+.register-section { max-width: 700px; margin: 40px auto; padding: 0 24px; animation: fadeUp .5s ease-out; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 .exam-summary {
-    background: linear-gradient(135deg, #1e3a5f, #2563eb);
-    border-radius: 16px; padding: 24px; color: #fff; margin-bottom: 28px;
+    background: linear-gradient(135deg, #0c1222 0%, #1a1040 60%, #4f46e5 100%);
+    border-radius: 20px; padding: 28px; color: #fff; margin-bottom: 28px;
     display: flex; align-items: center; gap: 20px;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(79,70,229,.25);
 }
-.exam-summary .icon { font-size: 48px; }
-.exam-summary h2 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
-.exam-meta-list { display: flex; gap: 16px; flex-wrap: wrap; }
-.exam-meta-list span { background: rgba(255,255,255,.15); border-radius: 20px; padding: 3px 12px; font-size: 12px; }
-.register-card { background: #fff; border-radius: 16px; border: 1.5px solid var(--border); overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
-.register-card .card-head { background: #f8fafc; border-bottom: 1px solid var(--border); padding: 18px 24px; display: flex; align-items: center; gap: 10px; }
+.exam-summary::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 50% 80% at 80% 20%,rgba(124,58,237,.2),transparent 60%); pointer-events:none; }
+.exam-summary .icon { font-size: 48px; position: relative; }
+.exam-summary h2 { font-size: 18px; font-weight: 800; margin-bottom: 8px; position: relative; }
+.exam-meta-list { display: flex; gap: 12px; flex-wrap: wrap; position: relative; }
+.exam-meta-list span { background: rgba(255,255,255,.12); backdrop-filter:blur(4px); border-radius: 20px; padding: 4px 14px; font-size: 12px; border: 1px solid rgba(255,255,255,.08); }
+.register-card { background: #fff; border-radius: 18px; border: 1.5px solid var(--border); overflow: hidden; box-shadow: 0 6px 30px rgba(0,0,0,.06); }
+.register-card .card-head { background: #fafbfd; border-bottom: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 10px; }
 .register-card .card-head h3 { font-size: 16px; font-weight: 700; }
 .register-card .card-body { padding: 28px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; border: none; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,.4); }
+.submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: none; border-radius: 14px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all .3s cubic-bezier(.4,0,.2,1); margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 20px rgba(79,70,229,.35); }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(79,70,229,.45); }
 @media(max-width:600px){ .form-row { grid-template-columns: 1fr; } }
 </style>
 @endpush

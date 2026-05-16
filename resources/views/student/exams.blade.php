@@ -3,22 +3,24 @@
 
 @push('styles')
 <style>
-.page-hero { background: linear-gradient(135deg, #1e3a5f, #2d6a9f); color: #fff; padding: 40px; text-align: center; }
-.page-hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
-.page-hero p { color: rgba(255,255,255,.75); font-size: 15px; }
-.exams-section { max-width: 760px; margin: 40px auto; padding: 0 24px; }
+.page-hero { background: linear-gradient(135deg, #0c1222 0%, #1a1040 50%, #0e1528 100%); color: #fff; padding: 48px 40px; text-align: center; position: relative; overflow: hidden; }
+.page-hero::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(79,70,229,.15) 0%, transparent 65%); }
+.page-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; position: relative; }
+.page-hero p { color: rgba(255,255,255,.65); font-size: 15px; position: relative; }
+.exams-section { max-width: 780px; margin: 40px auto; padding: 0 24px; }
 .exam-card {
-    background: #fff; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px;
+    background: #fff; border: 1.5px solid var(--border); border-radius: 18px; padding: 28px;
     display: flex; justify-content: space-between; align-items: center; gap: 20px;
-    margin-bottom: 16px; transition: all .25s; text-decoration: none; color: inherit;
+    margin-bottom: 16px; transition: all .3s cubic-bezier(.4,0,.2,1); text-decoration: none; color: inherit;
 }
-.exam-card:hover { border-color: var(--primary); box-shadow: 0 8px 32px rgba(37,99,235,.1); transform: translateY(-2px); }
-.exam-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--primary), #8b5cf6); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; flex-shrink: 0; }
+.exam-card:hover { border-color: #a5b4fc; box-shadow: 0 12px 40px rgba(79,70,229,.12); transform: translateY(-3px); }
+.exam-icon { width: 58px; height: 58px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; flex-shrink: 0; box-shadow: 0 4px 16px rgba(79,70,229,.3); transition: transform .3s; }
+.exam-card:hover .exam-icon { transform: scale(1.08) rotate(-4deg); }
 .exam-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
 .exam-meta { display: flex; flex-wrap: wrap; gap: 12px; }
 .meta-item { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); }
-.btn-start { background: var(--primary); color: #fff; padding: 10px 24px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: all .2s; flex-shrink: 0; }
-.btn-start:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,99,235,.4); }
+.btn-start { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; padding: 10px 26px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: all .3s cubic-bezier(.4,0,.2,1); flex-shrink: 0; }
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(79,70,229,.4); }
 </style>
 @endpush
 
