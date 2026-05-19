@@ -18,6 +18,11 @@ class HomeController extends Controller
         return view('student.home', compact('grades'));
     }
 
+    public function about()
+    {
+        return view('student.about');
+    }
+
     public function exams(Grade $grade)
     {
         $exams = Exam::where('grade_id', $grade->id)

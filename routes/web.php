@@ -76,6 +76,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/grade/{grade}/exams', [HomeController::class, 'exams'])->name('student.exams');
 
 Route::prefix('exam')->name('exam.')->group(function () {

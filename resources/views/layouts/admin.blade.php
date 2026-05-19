@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'لوحة التحكم') | مدارس القيم الأهلية</title>
+    <title>@yield('title', 'لوحة التحكم') | {{ \App\Models\Setting::get('school_name', 'مدارس القيم الأهلية') }}</title>
+    
+    <!-- Favicon and App Icons -->
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -552,9 +559,9 @@
 <aside class="sidebar">
     <button class="sidebar-close-btn" id="sidebarClose" title="إغلاق القائمة"><i class="bi bi-x-lg"></i></button>
     <div class="sidebar-logo" style="padding: 20px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--sidebar-border);">
-        <img src="{{ asset('images/school_logo.png') }}" alt="Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));">
+        <img src="{{ \App\Models\Setting::get('school_logo') ? asset('storage/' . \App\Models\Setting::get('school_logo')) : asset('images/school_icon.png') }}" alt="Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));">
         <div class="logo-text" style="font-weight: 800; font-size: 15px; color: #fff; line-height: 1.4;">
-            مدرسة القيم الأهلية
+            {{ \App\Models\Setting::get('school_name', 'مدارس القيم الأهلية') }}
             <span style="color: var(--sidebar-text); font-size: 11px; font-weight: 600; display: block; margin-top: 2px;">لوحة الإدارة</span>
         </div>
     </div>
@@ -609,6 +616,13 @@
                 <i class="bi bi-gear-fill"></i> إعدادات النظام
             </a>
         </div>
+        
+        <span class="nav-section-title">الموقع الإلكتروني</span>
+        <div class="nav-item">
+            <a href="{{ route('home') }}" target="_blank">
+                <i class="bi bi-globe" style="color: var(--primary);"></i> العودة للموقع
+            </a>
+        </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -650,6 +664,12 @@
         <!-- Left action buttons (Notifications & Admin Avatar with Dropdowns) -->
         <div class="topbar-actions" style="display: flex; align-items: center; gap: 16px; margin-right: auto; margin-left: 0;">
             
+            <!-- العودة للموقع -->
+            <a href="{{ route('home') }}" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; height: 44px; text-decoration: none;" target="_blank">
+                <i class="bi bi-globe" style="color: var(--primary); font-size: 16px;"></i>
+                <span>العودة للموقع</span>
+            </a>
+
             <!-- 1. Notification Dropdown -->
             <div class="dropdown-wrapper">
                 <button class="topbar-btn bell-active" id="notifBellBtn">

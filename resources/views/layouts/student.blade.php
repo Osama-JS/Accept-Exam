@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'نظام القبول الإلكتروني | مدارس القيم الأهلية')</title>
+    <title>@yield('title', 'نظام القبول الإلكتروني | ' . \App\Models\Setting::get('school_name', 'مدارس القيم الأهلية'))</title>
+    
+    <!-- Favicon and App Icons -->
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -401,15 +408,15 @@
 
         <!-- Navigation Links in Center Dark Section -->
         <div class="nav-links">
-            <a href="{{ route('home') ?? '/' }}" class="{{ request()->is('/') ? 'active' : '' }}">الرئيسية</a>
-            <a href="#about">من نحن</a>
-            <a href="#programs">البرامج</a>
+            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">الرئيسية</a>
+            <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">من نحن</a>
+            <a href="{{ route('home') }}#programs">البرامج</a>
             <a href="#contact">اتصل بنا</a>
         </div>
 
         <!-- Admin Capsule Button with Location Icon -->
         <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
-            <a href="{{ route('admin.dashboard') }}" class="btn-admin" style="display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(280deg, #76b51b 35%, #ffffff 90%); color: #ffffff; padding: 10px 24px; border-radius: 50px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); transition: all 0.3s ease;">
+            <a href="{{ route('admin.dashboard') }}" class="btn-admin" style="display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(280deg, #76b51b 35%, #ffffff 90%); color: #ffffff; padding: 10px 24px; border-radius: 50px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); transition: all 0.3s ease; margin-left: 75px;">
                 <span>دخول الإدارة</span>
                 <span style="background: #ffffff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 4px;">
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="#76b51b" xmlns="http://www.w3.org/2000/svg" style="display: block;">
@@ -429,9 +436,9 @@
         <button class="drawer-close-btn" id="mobileDrawerClose" title="إغلاق القائمة"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="drawer-links" style="flex: 1;">
-        <a href="{{ route('home') ?? '/' }}" class="{{ request()->is('/') ? 'active' : '' }}">الرئيسية</a>
-        <a href="#about">من نحن</a>
-        <a href="#programs">البرامج</a>
+        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">الرئيسية</a>
+        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">من نحن</a>
+        <a href="{{ route('home') }}#programs">البرامج</a>
         <a href="#contact">اتصل بنا</a>
     </div>
     <div class="drawer-footer" style="margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);">

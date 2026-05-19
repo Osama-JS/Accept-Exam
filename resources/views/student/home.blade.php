@@ -326,48 +326,14 @@
 <div class="hero-container-wrapper" id="home">
     <div class="hero">
         
-        <!-- Live Mock Portal Preview (لوحة المعاينة التفاعلية) -->
+        <!-- Live Hero Image Showcase -->
         <div class="hero-image-container">
-            <div class="mock-portal-card">
-                <div class="mp-header">
-                    <div class="mp-dots">
-                        <div class="mp-dot mp-dot-red"></div>
-                        <div class="mp-dot mp-dot-yellow"></div>
-                        <div class="mp-dot mp-dot-green"></div>
-                    </div>
-                    <span class="mp-title">Admission Portal v2.0</span>
-                </div>
-                
-                <div class="mp-body">
-                    <div class="mp-welcome-capsule">
-                        <div>
-                            <span class="mpw-name">أهلاً بك في مدرسة القيم الأهلية 🎓</span>
-                            <span class="mpw-desc">يرجى اختيار أحد الاختبارات النشطة بالأسفل</span>
-                        </div>
-                        <i class="bi bi-person-badge" style="font-size: 26px; opacity: 0.85;"></i>
-                    </div>
-                    
-                    <div class="mp-exam-row active">
-                        <div class="mpe-meta">
-                            <div class="mpe-icon"><i class="bi bi-translate"></i></div>
-                            <div>
-                                <span class="mpe-name">اختبار اللغة العربية للقبول</span>
-                                <div class="mpe-duration"><i class="bi bi-clock"></i> 30 دقيقة | 15 سؤالاً</div>
-                            </div>
-                        </div>
-                        <button type="button" class="mpe-btn">بدء التقديم</button>
-                    </div>
-
-                    <div class="mp-exam-row">
-                        <div class="mpe-meta">
-                            <div class="mpe-icon" style="background: rgba(195, 14, 20, 0.08); color: var(--danger);"><i class="bi bi-calculator"></i></div>
-                            <div>
-                                <span class="mpe-name">اختبار الرياضيات والذكاء</span>
-                                <div class="mpe-duration"><i class="bi bi-clock"></i> 45 دقيقة | 20 سؤالاً</div>
-                            </div>
-                        </div>
-                        <span class="mpe-btn-done"><i class="bi bi-check-circle-fill"></i> اكتمل بنجاح</span>
-                    </div>
+            <div class="hero-main-img-wrapper" style="width: 100%; height: 100%; min-height: 380px; border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-lg); border: 4px solid rgba(255,255,255,0.85); background: #fff; position: relative;">
+                <img src="{{ \App\Models\Setting::get('home_hero_image') ? asset('storage/' . \App\Models\Setting::get('home_hero_image')) : asset('images/classroom_hero.png') }}" alt="{{ \App\Models\Setting::get('school_name', 'مدارس القيم الأهلية') }}" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 20px;">
+                <!-- Decorative glassmorphic badge -->
+                <div style="position: absolute; bottom: 20px; right: 20px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 10px; height: 10px; background: var(--primary); border-radius: 50%;"></div>
+                    <span style="font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700; color: #1e293b;">صرح تعليمي رائد</span>
                 </div>
             </div>
         </div>
@@ -399,8 +365,8 @@
 <!-- Steps Section (خريطة خطوات التقديم الحقيقية) -->
 <div class="steps-section" id="about">
     <div class="section-header">
-        <h2>خطوات رحلة القبول الإلكتروني</h2>
-        <p>قمنا بتبسيط وتأمين خطوات التقديم لتضمن مقعدك الدراسي في بضع دقائق ومن أي جهاز</p>
+        <h2>{{ \App\Models\Setting::get('steps_section_title', 'خطوات رحلة القبول الإلكتروني') }}</h2>
+        <p>{{ \App\Models\Setting::get('steps_section_desc', 'قمنا بتبسيط وتأمين خطوات التقديم لتضمن مقعدك الدراسي في بضع دقائق ومن أي جهاز') }}</p>
     </div>
     
     <div class="steps-container">
@@ -409,38 +375,38 @@
             <!-- Step 1 -->
             <div class="step">
                 <div class="step-circle">
-                    🎓
+                    {{ \App\Models\Setting::get('step1_icon', '🎓') }}
                     <span class="step-badge">1</span>
                 </div>
-                <h3>1. اختر الصف الدراسي</h3>
-                <p>تصفح الصفوف الأكاديمية النشطة بالأسفل، وحدد الصف الدراسي الذي ترغب في التسجيل والالتحاق به.</p>
+                <h3>{{ \App\Models\Setting::get('step1_title', '1. اختر الصف الدراسي') }}</h3>
+                <p>{{ \App\Models\Setting::get('step1_desc', 'تصفح الصفوف الأكاديمية النشطة بالأسفل، وحدد الصف الدراسي الذي ترغب في التسجيل والالتحاق به.') }}</p>
             </div>
             <!-- Step 2 -->
             <div class="step">
                 <div class="step-circle">
-                    📋
+                    {{ \App\Models\Setting::get('step2_icon', '📋') }}
                     <span class="step-badge">2</span>
                 </div>
-                <h3>2. سجل بياناتك الأساسية</h3>
-                <p>أدخل اسم الطالب رباعياً، ورقم هاتف ولي الأمر لتأمين طلب الالتحاق وإثبات الحضور والجلسة.</p>
+                <h3>{{ \App\Models\Setting::get('step2_title', '2. سجل بياناتك الأساسية') }}</h3>
+                <p>{{ \App\Models\Setting::get('step2_desc', 'أدخل اسم الطالب رباعياً، ورقم هاتف ولي الأمر لتأمين طلب الالتحاق وإثبات الحضور والجلسة.') }}</p>
             </div>
             <!-- Step 3 -->
             <div class="step">
                 <div class="step-circle">
-                    ⏱️
+                    {{ \App\Models\Setting::get('step3_icon', '⏱️') }}
                     <span class="step-badge">3</span>
                 </div>
-                <h3>3. أدّ اختبار القبول</h3>
-                <p>ابدأ الإجابة عن الأسئلة التفاعلية المتنوعة بكل سهولة وبشكل مؤمن داخل الوقت الزمني المخصص.</p>
+                <h3>{{ \App\Models\Setting::get('step3_title', '3. أدّ اختبار القبول') }}</h3>
+                <p>{{ \App\Models\Setting::get('step3_desc', 'ابدأ الإجابة عن الأسئلة التفاعلية المتنوعة بكل سهولة وبشكل مؤمن داخل الوقت الزمني المخصص.') }}</p>
             </div>
             <!-- Step 4 -->
             <div class="step">
                 <div class="step-circle">
-                    🏆
+                    {{ \App\Models\Setting::get('step4_icon', '🏆') }}
                     <span class="step-badge">4</span>
                 </div>
-                <h3>4. احصل على نتيجتك</h3>
-                <p>فور الانتهاء من تأدية الامتحان، يصدر النظام تقرير أداء فوري ومؤشرات النجاح والقبول للطلب.</p>
+                <h3>{{ \App\Models\Setting::get('step4_title', '4. احصل على نتيجتك') }}</h3>
+                <p>{{ \App\Models\Setting::get('step4_desc', 'فور الانتهاء من تأدية الامتحان، يصدر النظام تقرير أداء فوري ومؤشرات النجاح والقبول للطلب.') }}</p>
             </div>
         </div>
     </div>
@@ -487,40 +453,46 @@
 <!-- FAQ Section -->
 <div class="faq-section" id="programs">
     <div class="section-header">
-        <h2>الأسئلة الشائعة حول القبول</h2>
-        <p>كل ما تود معرفته عن امتحانات القبول الإلكترونية بمدارس القيم الأهلية</p>
+        <h2>{{ \App\Models\Setting::get('faq_section_title', 'الأسئلة الشائعة حول القبول') }}</h2>
+        <p>{{ \App\Models\Setting::get('faq_section_desc', 'كل ما تود معرفته عن امتحانات القبول الإلكترونية بمدارس القيم الأهلية') }}</p>
     </div>
 
+    @php
+        $faqsJson = \App\Models\Setting::get('faqs');
+        $faqs = [];
+        if ($faqsJson) {
+            $faqs = json_decode($faqsJson, true);
+        }
+        if (empty($faqs)) {
+            $faqs = [
+                [
+                    'question' => \App\Models\Setting::get('faq1_question', 'ما هي مدة الاختبار المحددة لقبول الطلاب؟'),
+                    'answer' => \App\Models\Setting::get('faq1_answer', 'تختلف مدة الاختبار حسب الصف الدراسي، وتتراوح عادةً بين 30 دقيقة إلى 60 دقيقة. يعرض النظام مؤقتاً تنازلياً دقيقاً في أعلى شاشة الامتحان لتنبيه الطالب.'),
+                ],
+                [
+                    'question' => \App\Models\Setting::get('faq2_question', 'هل تظهر نتيجة الاختبار للطالب فور الانتهاء؟'),
+                    'answer' => \App\Models\Setting::get('faq2_answer', 'نعم، تظهر النتيجة وتفاصيل الأداء التقييمي للطالب بشكل فوري وتلقائي بمجرد النقر على زر "تسليم الإجابات"، مع إمكانية طباعة التقرير أو الاحتفاظ بالرابط.'),
+                ],
+                [
+                    'question' => \App\Models\Setting::get('faq3_question', 'ماذا يحدث إذا انقطع الاتصال بالإنترنت أثناء تأدية الامتحان؟'),
+                    'answer' => \App\Models\Setting::get('faq3_answer', 'يقوم النظام بحفظ آخر إجابات مدخلة للطالب بشكل تلقائي. وفي حال انقطاع الخدمة، يرجى إعادة تحميل الصفحة بعد التحقق من الشبكة لمواصلة حل الامتحان من حيث توقفت.'),
+                ],
+            ];
+        }
+    @endphp
+
     <div class="faq-wrapper">
+        @foreach($faqs as $faq)
         <div class="faq-item">
             <div class="faq-question">
-                <span>ما هي مدة الاختبار المحددة لقبول الطلاب؟</span>
+                <span>{{ $faq['question'] }}</span>
                 <i class="bi bi-chevron-down faq-chevron"></i>
             </div>
             <div class="faq-answer">
-                تختلف مدة الاختبار حسب الصف الدراسي، وتتراوح عادةً بين 30 دقيقة إلى 60 دقيقة. يعرض النظام مؤقتاً تنازلياً دقيقاً في أعلى شاشة الامتحان لتنبيه الطالب.
+                {{ $faq['answer'] }}
             </div>
         </div>
-
-        <div class="faq-item">
-            <div class="faq-question">
-                <span>هل تظهر نتيجة الاختبار للطالب فور الانتهاء؟</span>
-                <i class="bi bi-chevron-down faq-chevron"></i>
-            </div>
-            <div class="faq-answer">
-                نعم، تظهر النتيجة وتفاصيل الأداء التقييمي للطالب بشكل فوري وتلقائي بمجرد النقر على زر "تسليم الإجابات"، مع إمكانية طباعة التقرير أو الاحتفاظ بالرابط.
-            </div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-question">
-                <span>ماذا يحدث إذا انقطع الاتصال بالإنترنت أثناء تأدية الامتحان؟</span>
-                <i class="bi bi-chevron-down faq-chevron"></i>
-            </div>
-            <div class="faq-answer">
-                يقوم النظام بحفظ آخر إجابات مدخلة للطالب بشكل تلقائي. وفي حال انقطاع الخدمة، يرجى إعادة تحميل الصفحة بعد التحقق من الشبكة لمواصلة حل الامتحان من حيث توقفت.
-            </div>
-        </div>
+        @endforeach
     </div>
 </div>
 

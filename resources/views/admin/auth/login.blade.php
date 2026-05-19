@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول | مدارس القيم الأهلية</title>
+    
+    <!-- Favicon and App Icons -->
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+    
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -121,7 +128,7 @@
 <div class="login-card">
     <div class="login-logo">
         <div style="margin-bottom: 18px; display: inline-flex; align-items: center; justify-content: center; animation: iconFloat 4s ease-in-out infinite;">
-            <img src="{{ asset('images/school_logo.png') }}" alt="شعار مدارس القيم الأهلية" style="width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(118,181,27,.3));">
+            <img src="{{ asset('images/school_icon.png') }}" alt="شعار مدارس القيم الأهلية" style="width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(118,181,27,.3));">
         </div>
         <h1>مدارس القيم الأهلية</h1>
         <p>تسجيل الدخول للوحة الإدارة</p>

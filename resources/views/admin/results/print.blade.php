@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>نتيجة الطالب - {{ $studentExam->student->name }}</title>
+
+<!-- Favicon and App Icons -->
+<link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+
 <style>
     body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; color: #1e293b; font-size: 13px; direction: rtl; }
     .header { text-align: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 16px; margin-bottom: 20px; }

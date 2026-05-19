@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
         // ─── Admin ───
         $this->call(AdminSeeder::class);
 
+        // ─── Settings ───
+        $this->call(SettingSeeder::class);
+
         // ─── Academic Years ───
         $year = AcademicYear::create(['name' => '2024-2025', 'is_current' => true]);
         AcademicYear::create(['name' => '2023-2024', 'is_current' => false]);
