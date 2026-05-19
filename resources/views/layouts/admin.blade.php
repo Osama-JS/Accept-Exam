@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             /* ألوان الهوية البصرية من الشعار */
@@ -511,12 +512,45 @@
         .empty-state i { font-size: 48px; color: #cbd5e0; margin-bottom: 16px; display: block; }
         .empty-state h3 { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
         .empty-state p { font-size: 14px; }
+
+        /* ── Mobile Responsiveness Enhancements for Sidebar & Topbar ── */
+        .sidebar-close-btn {
+            display: none;
+            position: absolute;
+            left: 16px;
+            top: 22px;
+            background: transparent;
+            border: none;
+            color: var(--sidebar-text);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 1010;
+        }
+        .sidebar-close-btn:hover { color: #fff; }
+
+        @media (max-width: 1024px) {
+            .sidebar-close-btn { display: block; }
+            .topbar { padding: 0 16px !important; }
+            .breadcrumb-container { display: none !important; }
+        }
+
+        @media (max-width: 576px) {
+            .profile-capsule-name { display: none !important; }
+            .profile-capsule { padding: 4px !important; border-radius: 50% !important; }
+            .topbar-actions { gap: 10px !important; }
+            .topbar-btn { width: 38px !important; height: 38px !important; font-size: 16px !important; }
+            .topbar-btn.bell-active span { top: 8px !important; right: 8px !important; }
+            .menu-toggle { width: 38px !important; height: 38px !important; font-size: 20px !important; border-radius: 10px !important; }
+            .navbar-dropdown { width: 260px !important; }
+        }
     </style>
     @stack('styles')
 </head>
 <body>
 
 <aside class="sidebar">
+    <button class="sidebar-close-btn" id="sidebarClose" title="إغلاق القائمة"><i class="bi bi-x-lg"></i></button>
     <div class="sidebar-logo" style="padding: 20px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--sidebar-border);">
         <img src="{{ asset('images/school_logo.png') }}" alt="Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));">
         <div class="logo-text" style="font-weight: 800; font-size: 15px; color: #fff; line-height: 1.4;">
@@ -716,6 +750,13 @@
             overlay.classList.toggle('show'); 
         });
     }
+    const closeBtn = document.getElementById('sidebarClose');
+    if(closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
+    }
     if(overlay) {
         overlay.addEventListener('click', () => { 
             sidebar.classList.remove('show'); 
@@ -759,9 +800,56 @@
         } 
     }, 4000);
     
-    function confirmDelete(formId, message = 'هل أنت متأكد من الحذف؟') { 
-        if (confirm(message)) document.getElementById(formId).submit(); 
+    // ── نافذة تأكيد الحذف الفاخرة باستخدام SweetAlert2 ──
+    function confirmDelete(formId, message = 'هل أنت متأكد من رغبتك في الحذف؟') { 
+        Swal.fire({
+            title: 'هل أنت متأكد؟',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#c30e14', // --danger
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'نعم، احذف الآن!',
+            cancelButtonText: 'تراجع',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // إظهار سبنر التحميل الفاخر أثناء تنفيذ الحذف
+                Swal.fire({
+                    title: 'جاري الحذف...',
+                    html: 'يرجى الانتظار لحين اكتمال العملية بنجاح.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                document.getElementById(formId).submit();
+            }
+        });
     }
+
+    // ── إشعارات الجلسة التلقائية الفاخرة (Session Flash Toast/Modal Alerts) ──
+    @if(session('success'))
+        Swal.fire({
+            title: 'عملية ناجحة!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            confirmButtonColor: '#76b51b',
+            confirmButtonText: 'ممتاز',
+            timer: 4000,
+            timerProgressBar: true
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            title: 'خطأ في العملية!',
+            text: "{{ session('error') }}",
+            icon: 'error',
+            confirmButtonColor: '#c30e14',
+            confirmButtonText: 'حسناً'
+        });
+    @endif
 </script>
 @stack('scripts')
 </body>

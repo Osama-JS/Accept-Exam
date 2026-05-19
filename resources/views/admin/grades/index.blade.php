@@ -209,8 +209,230 @@
 
     /* ── الترقيم المطور المدمج مع لارافل (Pagination) ── */
     .pagination-wrapper {
-        background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.8);
-        padding: 20px 28px; border-radius: 16px; margin-top: 24px;
+        background: #ffffff; 
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        padding: 16px 24px; 
+        border-radius: 16px; 
+        margin-top: 32px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+    
+    /* تنسيق أسلوب Bootstrap Pagination إن وجد */
+    .pagination-wrapper .pagination {
+        display: flex;
+        gap: 6px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+    }
+    .pagination-wrapper .page-item .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        background: #fff;
+        color: #475569;
+        font-weight: 750;
+        font-size: 13.5px;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .pagination-wrapper .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+        box-shadow: 0 4px 12px var(--primary-light);
+    }
+    .pagination-wrapper .page-item:not(.active):not(.disabled) .page-link:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-light);
+        transform: translateY(-1px);
+    }
+    .pagination-wrapper .page-item.disabled .page-link {
+        color: #cbd5e1;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+
+    /* تنسيق أسلوب Tailwind Pagination الافتراضي من لارافل */
+    .pagination-wrapper nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+    .pagination-wrapper nav > div:first-child {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 700;
+    }
+    .pagination-wrapper nav > div:last-child {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+    .pagination-wrapper nav a, 
+    .pagination-wrapper nav span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 38px;
+        height: 38px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        background: #fff;
+        color: #475569;
+        font-weight: 750;
+        font-size: 13px;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: none !important;
+    }
+    .pagination-wrapper nav span[aria-current="page"] {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff !important;
+        box-shadow: 0 4px 12px var(--primary-light) !important;
+    }
+    .pagination-wrapper nav a:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-light);
+        transform: translateY(-1px);
+    }
+    .pagination-wrapper nav span[aria-disabled="true"] {
+        color: #cbd5e1 !important;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+    .pagination-wrapper nav svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* ── نافذة إدارة المواد التفاعلية (Manage Subjects Modal Styling) ── */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        z-index: 1100; display: flex; align-items: center; justify-content: center;
+        padding: 20px; animation: fadeInModal 0.2s ease-out;
+    }
+    @keyframes fadeInModal {
+        from { opacity: 0; } to { opacity: 1; }
+    }
+    
+    .modal-card {
+        background: #ffffff; border-radius: 24px; border: 1px solid #e2e8f0;
+        width: 100%; max-width: 600px; display: flex; flex-direction: column;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: slideInModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
+    }
+    @keyframes slideInModal {
+        from { transform: translateY(30px) scale(0.95); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    
+    .modal-header {
+        padding: 24px; border-bottom: 1px solid #f1f5f9; display: flex;
+        justify-content: space-between; align-items: center; background: #f8fafc;
+    }
+    .modal-title {
+        font-size: 18px; font-weight: 900; color: #1e293b; margin: 0;
+    }
+    .modal-subtitle {
+        font-size: 13px; font-weight: 700; color: var(--primary-dark); margin-top: 4px;
+    }
+    .modal-close-btn {
+        background: none; border: none; font-size: 28px; color: #94a3b8;
+        cursor: pointer; transition: color 0.2s; padding: 0 8px; line-height: 1;
+    }
+    .modal-close-btn:hover { color: var(--danger); }
+    
+    .modal-body {
+        padding: 24px; max-height: 380px; overflow-y: auto; position: relative;
+    }
+    .modal-loader {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 40px 0; gap: 16px; color: #64748b; font-weight: 800; font-size: 14px;
+    }
+    .modal-loader .spinner {
+        width: 40px; height: 40px; border: 4px solid rgba(118, 181, 27, 0.1);
+        border-top-color: var(--primary); border-radius: 50%; animation: spinLoader 0.8s linear infinite;
+    }
+    @keyframes spinLoader {
+        to { transform: rotate(360deg); }
+    }
+    
+    .modal-subjects-grid {
+        display: flex; flex-direction: column; gap: 12px;
+    }
+    
+    /* سطر المادة داخل المودال */
+    .modal-subject-row {
+        background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px;
+        padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+        transition: all 0.2s; cursor: pointer; user-select: none;
+    }
+    .modal-subject-row:hover {
+        background: #ffffff; border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(118, 181, 27, 0.05);
+    }
+    .modal-subject-row.associated {
+        background: rgba(118, 181, 27, 0.03); border-color: rgba(118, 181, 27, 0.3);
+    }
+    
+    .subject-info-box {
+        display: flex; align-items: center; gap: 12px;
+    }
+    .subject-title-label {
+        font-size: 14.5px; font-weight: 850; color: #1e293b; cursor: pointer;
+    }
+    
+    .questions-count-badge {
+        font-size: 11.5px; font-weight: 800; padding: 6px 12px; border-radius: 30px;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .badge-has-questions {
+        background: rgba(118, 181, 27, 0.1); color: var(--primary-dark);
+        border: 1px solid rgba(118, 181, 27, 0.2);
+    }
+    .badge-no-questions {
+        background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0;
+    }
+    
+    .modal-footer {
+        padding: 20px 24px; border-top: 1px solid #f1f5f9; display: flex;
+        justify-content: flex-end; gap: 12px; background: #f8fafc;
+    }
+    .btn-cancel {
+        background: #ffffff; border: 1.5px solid #cbd5e1; color: #475569;
+        font-weight: 800; font-size: 13.5px; padding: 12px 24px; border-radius: 12px;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: #f8fafc; color: #1e293b; border-color: #94a3b8; }
+    
+    .btn-submit-save {
+        background: var(--primary); border: none; color: #ffffff;
+        font-weight: 900; font-size: 13.5px; padding: 12px 28px; border-radius: 12px;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+        box-shadow: var(--shadow-primary); transition: all 0.2s;
+    }
+    .btn-submit-save:hover {
+        background: var(--primary-dark); transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(118, 181, 27, 0.35);
     }
 </style>
 @endpush
@@ -408,10 +630,10 @@
 
                 <!-- الإجراءات الخاصة بالبطاقة -->
                 <div class="card-actions-wrapper">
-                    <a href="{{ route('admin.subjects.index', ['grade_id' => $grade->id]) }}" class="btn-manage-subjects">
+                    <button type="button" class="btn-manage-subjects" onclick="openManageSubjectsModal({{ $grade->id }}, '{{ $grade->name }}')">
                         <span>إدارة المواد</span>
                         <i class="bi bi-arrow-left-circle-fill"></i>
-                    </a>
+                    </button>
                     
                     <a href="{{ route('admin.grades.edit', $grade) }}" class="btn-action-icon btn-action-edit" title="تعديل الصف">
                         <i class="bi bi-pencil-fill"></i>
@@ -437,6 +659,45 @@
             {{ $grades->appends(request()->query())->links() }}
         </div>
     @endif
+</div>
+
+<!-- ── نافذة إدارة المواد الدراسية الفاخرة (Manage Subjects Modal) ── -->
+<div id="manageSubjectsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div>
+                <h3 class="modal-title">إدارة المواد الدراسية</h3>
+                <p class="modal-subtitle" id="modalGradeName">تحديد المواد المرتبطة بهذا الصف</p>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeManageSubjectsModal()">&times;</button>
+        </div>
+        
+        <form id="manageSubjectsForm" onsubmit="submitManageSubjectsForm(event)">
+            @csrf
+            <input type="hidden" name="grade_id" id="modalGradeId">
+            
+            <div class="modal-body">
+                <!-- loading spinner -->
+                <div id="modalLoading" class="modal-loader">
+                    <div class="spinner"></div>
+                    <p>جاري تحميل المواد الدراسية والأسئلة...</p>
+                </div>
+                
+                <!-- subjects list container -->
+                <div id="modalSubjectsList" class="modal-subjects-grid" style="display: none;">
+                    <!-- loaded dynamically via js -->
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeManageSubjectsModal()">إلغاء</button>
+                <button type="submit" class="btn-submit-save" id="btnSaveSubjects">
+                    <span>حفظ التغييرات</span>
+                    <i class="bi bi-check-circle-fill"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @endsection
@@ -687,34 +948,227 @@
             document.body.removeChild(link);
         };
 
-        // ── الحذف الجماعي الآمن عبر AJAX بالتزامن مع Laravel ──
+        // ── الحذف الجماعي الآمن عبر AJAX بالتزامن مع Laravel باستخدام SweetAlert2 ──
         window.confirmDeleteMultiple = function() {
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
             const ids = Array.from(checkedBoxes).map(cb => cb.value);
             if (ids.length === 0) return;
             
-            if (confirm(`تحذير: هل أنت متأكد من رغبتك في حذف ${ids.length} صفوف دراسية مختارة بالكامل؟ سيؤدي ذلك لحذف المقررات المرتبطة بها!`)) {
-                dataGrid.style.opacity = '0.5';
-                
-                let promises = ids.map(id => {
-                    return fetch(`/admin/grades/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ _method: 'DELETE' })
+            Swal.fire({
+                title: 'هل أنت متأكد من الحذف الجماعي؟',
+                text: `تحذير: أنت على وشك حذف عدد (${ids.length}) صفوف دراسية مختارة بالكامل مع المقررات المرتبطة بها!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#c30e14',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'نعم، احذف الكل!',
+                cancelButtonText: 'تراجع',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    dataGrid.style.opacity = '0.5';
+                    Swal.fire({
+                        title: 'جاري حذف الصفوف المحددة...',
+                        html: 'يرجى عدم غلق الصفحة حتى انتهاء الحذف الجماعي.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
                     });
-                });
+                    
+                    const deleteBaseUrl = "{{ route('admin.grades.destroy', ['grade' => ':gradeId']) }}";
+                    let promises = ids.map(id => {
+                        const deleteUrl = deleteBaseUrl.replace(':gradeId', id);
+                        return fetch(deleteUrl, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ _method: 'DELETE' })
+                        });
+                    });
+                    
+                    Promise.all(promises).then(() => {
+                        window.location.reload();
+                    }).catch(err => {
+                        Swal.fire({
+                            title: 'خطأ!',
+                            text: 'حدث خطأ غير متوقع أثناء تنفيذ الحذف الجماعي.',
+                            icon: 'error',
+                            confirmButtonColor: '#c30e14',
+                            confirmButtonText: 'حسناً'
+                        });
+                        dataGrid.style.opacity = '1';
+                    });
+                }
+            });
+        };
+
+        // ── دالة فتح نافذة إدارة المواد الدراسية الفورية ──
+        window.openManageSubjectsModal = function(gradeId, gradeName) {
+            const modal = document.getElementById('manageSubjectsModal');
+            const modalTitleGrade = document.getElementById('modalGradeName');
+            const modalIdInput = document.getElementById('modalGradeId');
+            const loader = document.getElementById('modalLoading');
+            const listContainer = document.getElementById('modalSubjectsList');
+            
+            if(!modal) return;
+            
+            // ضبط البيانات المبدئية
+            modalIdInput.value = gradeId;
+            modalTitleGrade.textContent = `مقررات ومواد: ${gradeName}`;
+            
+            // إظهار المودال واللودر
+            modal.style.display = 'flex';
+            loader.style.display = 'flex';
+            listContainer.style.display = 'none';
+            listContainer.innerHTML = '';
+            
+            // جلب البيانات بالـ AJAX باستخدام مسار لارافل الديناميكي المتوافق مع المجلدات الفرعية
+            const fetchBaseUrl = "{{ route('admin.grades.subjects', ['grade' => ':gradeId']) }}";
+            const fetchUrl = fetchBaseUrl.replace(':gradeId', gradeId);
+            
+            fetch(fetchUrl, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                loader.style.display = 'none';
+                listContainer.style.display = 'flex';
                 
-                Promise.all(promises).then(() => {
-                    window.location.reload();
-                }).catch(err => {
-                    alert('حدث خطأ أثناء تنفيذ الحذف الجماعي.');
-                    dataGrid.style.opacity = '1';
+                if (data.subjects.length === 0) {
+                    listContainer.innerHTML = `
+                        <div style="text-align: center; padding: 30px 10px; color: #94a3b8; width: 100%;">
+                            <i class="bi bi-book" style="font-size: 32px; display: block; margin-bottom: 8px;"></i>
+                            <span>لا توجد أي مواد دراسية مضافة في النظام حالياً.</span>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                data.subjects.forEach(subject => {
+                    const isChecked = subject.is_associated ? 'checked' : '';
+                    const rowClass = subject.is_associated ? 'modal-subject-row associated' : 'modal-subject-row';
+                    const badgeClass = subject.questions_count > 0 ? 'questions-count-badge badge-has-questions' : 'questions-count-badge badge-no-questions';
+                    const badgeText = subject.questions_count > 0 
+                        ? `<i class="bi bi-patch-question-fill"></i> ${subject.questions_count} سؤالاً`
+                        : `<i class="bi bi-question-circle"></i> لا توجد أسئلة`;
+                        
+                    const rowHtml = `
+                        <div class="${rowClass}" onclick="toggleSubjectRowCheckbox(this, '${subject.id}')">
+                            <div class="subject-info-box">
+                                <input type="checkbox" name="subject_ids[]" value="${subject.id}" 
+                                    id="chk-subj-${subject.id}" class="custom-checkbox" ${isChecked}
+                                    onclick="event.stopPropagation(); handleCheckboxChange(this)">
+                                <label for="chk-subj-${subject.id}" class="subject-title-label" onclick="event.stopPropagation()">${subject.name}</label>
+                            </div>
+                            <span class="${badgeClass}">${badgeText}</span>
+                        </div>
+                    `;
+                    listContainer.insertAdjacentHTML('beforeend', rowHtml);
                 });
+            })
+            .catch(err => {
+                loader.style.display = 'none';
+                listContainer.style.display = 'flex';
+                listContainer.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--danger); font-weight: 800; width: 100%;">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 30px; display: block; margin-bottom: 8px;"></i>
+                        <span>حدث خطأ أثناء جلب المواد الدراسية.</span>
+                    </div>
+                `;
+            });
+        };
+        
+        window.closeManageSubjectsModal = function() {
+            const modal = document.getElementById('manageSubjectsModal');
+            if(modal) modal.style.display = 'none';
+        };
+        
+        window.toggleSubjectRowCheckbox = function(rowDiv, subjectId) {
+            const checkbox = document.getElementById(`chk-subj-${subjectId}`);
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                handleCheckboxChange(checkbox);
             }
+        };
+        
+        window.handleCheckboxChange = function(checkbox) {
+            const row = checkbox.closest('.modal-subject-row');
+            if (row) {
+                if (checkbox.checked) {
+                    row.classList.add('associated');
+                } else {
+                    row.classList.remove('associated');
+                }
+            }
+        };
+        
+        window.submitManageSubjectsForm = function(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSaveSubjects');
+            const gradeId = document.getElementById('modalGradeId').value;
+            const form = document.getElementById('manageSubjectsForm');
+            const formData = new FormData(form);
+            
+            // تعطيل الزر مؤقتاً
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span>جاري حفظ التعديلات...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="width:16px; height:16px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; display: inline-block; animation: spinLoader 0.6s linear infinite;"></span>`;
+            
+            const syncBaseUrl = "{{ route('admin.grades.subjects.sync', ['grade' => ':gradeId']) }}";
+            const syncUrl = syncBaseUrl.replace(':gradeId', gradeId);
+            
+            fetch(syncUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                
+                if (data.success) {
+                    closeManageSubjectsModal();
+                    Swal.fire({
+                        title: 'عملية ناجحة!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonColor: '#76b51b',
+                        confirmButtonText: 'ممتاز'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'خطأ!',
+                        text: 'حدث خطأ أثناء حفظ ومزامنة المواد.',
+                        icon: 'error',
+                        confirmButtonColor: '#c30e14',
+                        confirmButtonText: 'حسناً'
+                    });
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                Swal.fire({
+                    title: 'فشل في الشبكة!',
+                    text: 'حدث خطأ في الاتصال أثناء إرسال البيانات، يرجى المحاولة لاحقاً.',
+                    icon: 'error',
+                    confirmButtonColor: '#c30e14',
+                    confirmButtonText: 'حسناً'
+                });
+            });
         };
     });
 </script>

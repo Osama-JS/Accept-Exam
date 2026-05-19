@@ -62,48 +62,103 @@ class ExamController extends Controller
             'academic_year_id'                  => 'required|exists:academic_years,id',
             'grade_id'                          => 'required|exists:grades,id',
             'title'                             => 'required|string|max:200',
-            'total_marks'                       => 'required|integer|min:1',
-            'pass_marks'                        => 'required|integer|min:1|lte:total_marks',
+            'duration_minutes'                  => 'required|integer|min:10',
+            'pass_marks_percent'                => 'required|integer|min:1|max:100',
             'configs'                           => 'required|array|min:1',
             'configs.*.subject_id'              => 'required|exists:subjects,id',
             'configs.*.question_count'          => 'required|integer|min:1',
+            'configs.*.marks_per_question'      => 'required|integer|min:1',
+            'configs.*.easy_count'              => 'nullable|integer|min:0',
+            'configs.*.easy_marks'              => 'nullable|integer|min:1',
+            'configs.*.medium_count'            => 'nullable|integer|min:0',
+            'configs.*.medium_marks'            => 'nullable|integer|min:1',
+            'configs.*.hard_count'              => 'nullable|integer|min:0',
+            'configs.*.hard_marks'              => 'nullable|integer|min:1',
+            'configs.*.mcq_count'               => 'nullable|integer|min:0',
+            'configs.*.tf_count'                => 'nullable|integer|min:0',
+            'configs.*.matching_count'          => 'nullable|integer|min:0',
+            'configs.*.essay_count'             => 'nullable|integer|min:0',
         ], [
             'configs.required'                  => 'يجب تحديد مادة واحدة على الأقل.',
-            'pass_marks.lte'                    => 'درجة النجاح لا يمكن أن تتجاوز الدرجة الكلية.',
         ]);
 
-        // التحقق: لا يمكن سحب أسئلة من نفس الصف المستهدف
+        $totalMarks = 0;
+
         foreach ($request->configs as $config) {
             $subject = Subject::findOrFail($config['subject_id']);
             if ($subject->grade_id == $request->grade_id) {
-                return back()->withErrors(['configs' => 'لا يمكن سحب أسئلة من نفس الصف المستهدف للاختبار.'])
-                    ->withInput();
+                return back()->withErrors(['configs' => 'لا يمكن سحب أسئلة من نفس الصف المستهدف للاختبار.'])->withInput();
             }
-            // التحقق من كفاية الأسئلة
-            $available = $subject->questions()->count();
+            $available = $subject->questions()->where('grade_id', $request->grade_id)->count();
             if ($available < $config['question_count']) {
-                return back()->withErrors(['configs' => "عدد الأسئلة المطلوبة من مادة \"{$subject->name}\" ({$config['question_count']}) يتجاوز المتاح ({$available})."])
-                    ->withInput();
+                return back()->withErrors(['configs' => "عدد الأسئلة المطلوبة من مادة \"{$subject->name}\" ({$config['question_count']}) يتجاوز المتاح لهذه المادة في الصف المستهدف ({$available})."])->withInput();
+            }
+
+            $diffSum = (int)($config['easy_count'] ?? 0) + (int)($config['medium_count'] ?? 0) + (int)($config['hard_count'] ?? 0);
+            if ($diffSum > 0 && $diffSum != $config['question_count']) {
+                return back()->withErrors(['configs' => "في مادة {$subject->name}: مجموع مستويات الصعوبة ({$diffSum}) لا يساوي إجمالي الأسئلة المطلوبة ({$config['question_count']})."])->withInput();
+            }
+
+            $typeSum = (int)($config['mcq_count'] ?? 0) + (int)($config['tf_count'] ?? 0) + (int)($config['matching_count'] ?? 0) + (int)($config['essay_count'] ?? 0);
+            if ($typeSum > 0 && $typeSum != $config['question_count']) {
+                return back()->withErrors(['configs' => "في مادة {$subject->name}: مجموع أنواع الأسئلة ({$typeSum}) لا يساوي إجمالي الأسئلة المطلوبة ({$config['question_count']})."])->withInput();
+            }
+
+            if ($diffSum > 0) {
+                $easyCount   = (int)($config['easy_count'] ?? 0);
+                $easyMarks   = (int)($config['easy_marks'] ?? 1);
+                $mediumCount = (int)($config['medium_count'] ?? 0);
+                $mediumMarks = (int)($config['medium_marks'] ?? 1);
+                $hardCount   = (int)($config['hard_count'] ?? 0);
+                $hardMarks   = (int)($config['hard_marks'] ?? 1);
+                
+                $totalMarks += ($easyCount * $easyMarks) + ($mediumCount * $mediumMarks) + ($hardCount * $hardMarks);
+            } else {
+                $totalMarks += ($config['question_count'] * $config['marks_per_question']);
             }
         }
+
+        $passMarks = (int)ceil($totalMarks * ($data['pass_marks_percent'] / 100));
 
         $exam = Exam::create([
             'academic_year_id' => $data['academic_year_id'],
             'grade_id'         => $data['grade_id'],
             'title'            => $data['title'],
-            'total_marks'      => $data['total_marks'],
-            'pass_marks'       => $data['pass_marks'],
+            'total_marks'      => $totalMarks,
+            'pass_marks'       => $passMarks,
+            'duration_minutes' => $data['duration_minutes'],
             'is_active'        => true,
         ]);
 
         foreach ($request->configs as $config) {
             $exam->subjectConfigs()->create([
-                'subject_id'     => $config['subject_id'],
-                'question_count' => $config['question_count'],
+                'subject_id'         => $config['subject_id'],
+                'question_count'     => $config['question_count'],
+                'marks_per_question' => $config['marks_per_question'],
+                'difficulties'       => [
+                    'easy'   => [
+                        'count' => (int)($config['easy_count'] ?? 0),
+                        'marks' => (int)($config['easy_marks'] ?? 1),
+                    ],
+                    'medium' => [
+                        'count' => (int)($config['medium_count'] ?? 0),
+                        'marks' => (int)($config['medium_marks'] ?? 1),
+                    ],
+                    'hard'   => [
+                        'count' => (int)($config['hard_count'] ?? 0),
+                        'marks' => (int)($config['hard_marks'] ?? 1),
+                    ],
+                ],
+                'types'              => [
+                    'mcq'      => (int)($config['mcq_count'] ?? 0),
+                    'tf'       => (int)($config['tf_count'] ?? 0),
+                    'matching' => (int)($config['matching_count'] ?? 0),
+                    'essay'    => (int)($config['essay_count'] ?? 0),
+                ],
             ]);
         }
 
-        return redirect()->route('admin.exams.index')->with('success', 'تم إنشاء الاختبار بنجاح.');
+        return redirect()->route('admin.exams.index')->with('success', 'تم إنشاء الاختبار بنجاح. الدرجة الكلية هي: ' . $totalMarks);
     }
 
     public function show(Exam $exam)

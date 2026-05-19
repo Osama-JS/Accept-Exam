@@ -187,6 +187,72 @@
     .pagination-wrapper {
         background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.8);
         padding: 20px 28px; border-radius: 16px; margin-top: 24px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.015);
+    }
+    .pagination-wrapper nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .pagination-wrapper nav div:first-child {
+        font-size: 13.5px;
+        font-weight: 750;
+        color: var(--text-muted);
+    }
+    .pagination-wrapper nav div:last-child {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pagination-wrapper nav a, 
+    .pagination-wrapper nav span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        color: var(--text-main) !important;
+        font-size: 13.5px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        background: #ffffff;
+        box-shadow: none !important;
+    }
+    .pagination-wrapper nav a:first-child,
+    .pagination-wrapper nav a:last-child,
+    .pagination-wrapper nav span:first-child,
+    .pagination-wrapper nav span:last-child {
+        width: auto;
+        padding: 0 16px;
+        gap: 6px;
+    }
+    .pagination-wrapper nav span[aria-current="page"] {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff !important;
+        box-shadow: 0 4px 12px var(--primary-light) !important;
+    }
+    .pagination-wrapper nav a:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-light);
+        transform: translateY(-1px);
+    }
+    .pagination-wrapper nav span[aria-disabled="true"] {
+        color: #cbd5e1 !important;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+    .pagination-wrapper nav svg {
+        width: 16px;
+        height: 16px;
     }
 </style>
 @endpush
@@ -333,7 +399,9 @@
                 <div class="subject-info">
                     <h3>{{ $subject->name }}</h3>
                     <div class="meta-tags">
-                        <span class="tag" style="background: {{ $theme['bg'] }}; color: {{ $theme['text'] }};"><i class="bi bi-layers"></i> {{ $subject->grade->name ?? 'عام' }}</span>
+                        @foreach($subject->grades as $g)
+                            <span class="tag" style="background: {{ $theme['bg'] }}; color: {{ $theme['text'] }};"><i class="bi bi-layers"></i> {{ $g->name }}</span>
+                        @endforeach
                         <span class="tag" style="background: #f8fafc; color: #64748b; border-color: #e2e8f0;"><i class="bi bi-patch-question-fill" style="color: {{ $theme['text'] }};"></i> {{ $qCount }} سؤال</span>
                     </div>
 
@@ -465,7 +533,7 @@
         // اعتراض أزرار صفحات Laravel وتمرير طلباتها بالـ AJAX
         document.addEventListener('click', function(e) {
             const pageLink = e.target.closest('.pagination a');
-            if (pageLink && dataGrid.contains(e.target)) {
+            if (pageLink && pagContainer.contains(e.target)) {
                 e.preventDefault();
                 const url = pageLink.getAttribute('href');
                 

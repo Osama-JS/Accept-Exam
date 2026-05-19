@@ -109,25 +109,27 @@
                 @method('PUT')
                 
                 <div class="form-group" style="margin-bottom: 24px;">
-                    <label for="grade_id">
-                        الصف الدراسي <span class="text-danger">*</span>
+                    <label>
+                        الصفوف الدراسية المرتبطة <span class="text-danger">*</span>
                     </label>
-                    <div class="input-wrapper">
-                        <select name="grade_id" id="grade_id" class="form-control @error('grade_id') is-invalid @enderror" required style="cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
-                            @foreach($grades ?? [] as $grade)
-                                <option value="{{ $grade->id }}" {{ old('grade_id', $subject->grade_id) == $grade->id ? 'selected' : '' }}>
-                                    {{ $grade->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <i class="bi bi-layers-half input-icon"></i>
-                        <i class="bi bi-chevron-down" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 12px; pointer-events: none;"></i>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+                        @php
+                            $selectedGradeIds = old('grade_ids', $subject->grades->pluck('id')->toArray());
+                        @endphp
+                        @foreach($grades ?? [] as $grade)
+                            <label class="d-flex align-items-center gap-2" style="cursor: pointer; background: #f8fafc; padding: 10px 16px; border: 1.5px solid #cbd5e1; border-radius: 12px; transition: all 0.2s; min-width: 140px; display: inline-flex; justify-content: flex-start; align-items: center; margin: 4px 0;">
+                                <input type="checkbox" name="grade_ids[]" value="{{ $grade->id }}" 
+                                       {{ in_array($grade->id, $selectedGradeIds) ? 'checked' : '' }}
+                                       style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;">
+                                <span style="font-size: 13.5px; font-weight: 700; color: #334155; margin-right: 6px;">{{ $grade->name }}</span>
+                            </label>
+                        @endforeach
                     </div>
                     <div class="helper-text">
-                        <i class="bi bi-info-circle-fill text-primary" style="font-size: 13px;"></i> حدد الصف الدراسي المناسب لتنظيم هذه المادة تحته.
+                        <i class="bi bi-info-circle-fill text-primary" style="font-size: 13px;"></i> حدد الصفوف الدراسية التي تدرس فيها هذه المادة (يمكنك اختيار صف واحد أو أكثر).
                     </div>
-                    @error('grade_id')
-                        <span class="invalid-feedback"><i class="bi bi-exclamation-triangle-fill"></i> {{ $message }}</span>
+                    @error('grade_ids')
+                        <span class="invalid-feedback" style="display:block;"><i class="bi bi-exclamation-triangle-fill"></i> {{ $message }}</span>
                     @enderror
                 </div>
 

@@ -13,13 +13,14 @@ class Exam extends Model
 
     protected $fillable = [
         'academic_year_id', 'grade_id', 'title',
-        'total_marks', 'pass_marks', 'is_active',
+        'total_marks', 'pass_marks', 'duration_minutes', 'is_active',
     ];
 
     protected $casts = [
-        'is_active'    => 'boolean',
-        'total_marks'  => 'integer',
-        'pass_marks'   => 'integer',
+        'is_active'        => 'boolean',
+        'total_marks'      => 'integer',
+        'pass_marks'       => 'integer',
+        'duration_minutes' => 'integer',
     ];
 
     public function academicYear(): BelongsTo

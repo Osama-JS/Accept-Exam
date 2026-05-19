@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
 
         $grades = collect($gradesData)->map(fn($g) => Grade::create($g));
 
-        // ─── Subjects & Questions for Grade 1 ───
+        // ─── Subjects ───
         $subjectsData = [
             ['name' => 'الرياضيات', 'icon' => '🔢'],
             ['name' => 'اللغة العربية', 'icon' => '📖'],
@@ -52,27 +52,13 @@ class DatabaseSeeder extends Seeder
 
         foreach ($subjectsData as $sd) {
             $subject = Subject::create([
-                'grade_id' => $grades[0]->id,
                 'name'     => $sd['name'],
                 'icon'     => $sd['icon'],
             ]);
-
-            // 10 questions per subject
-            for ($i = 1; $i <= 10; $i++) {
-                $q = Question::create([
-                    'subject_id' => $subject->id,
-                    'text'       => "سؤال رقم {$i} في مادة {$subject->name}؟",
-                ]);
-
-                for ($c = 1; $c <= 4; $c++) {
-                    Choice::create([
-                        'question_id' => $q->id,
-                        'text'        => "الخيار {$c}",
-                        'is_correct'  => $c === 1,
-                        'order'       => $c,
-                    ]);
-                }
-            }
+            $subject->grades()->attach($grades[0]->id);
         }
+
+        // ─── Call Question Bank Seeder for Real Questions ───
+        $this->call(QuestionBankSeeder::class);
     }
 }

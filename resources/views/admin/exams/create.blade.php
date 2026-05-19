@@ -85,7 +85,7 @@
     .btn-remove-source:hover { background: #ef4444; color: #fff; }
 
     .source-inputs {
-        display: grid; grid-template-columns: 1.1fr 1.3fr 0.8fr; gap: 14px;
+        display: grid; grid-template-columns: 1fr 1.3fr 0.8fr 0.8fr; gap: 14px;
     }
     @media (max-width: 576px) {
         .source-inputs { grid-template-columns: 1fr; }
@@ -109,6 +109,28 @@
         background: rgba(37,99,235,.06); border: 1px solid rgba(37,99,235,.15); border-radius: 12px;
         padding: 14px 18px; font-size: 13px; color: #1e3a8a; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px;
     }
+
+    /* ── التوزيع المتقدم (Premium Advanced Panel) ── */
+    .advanced-config-panel {
+        background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; margin-top: 16px; overflow: hidden;
+        display: none;
+    }
+    .advanced-config-panel.active {
+        display: block;
+    }
+    .advanced-config-header {
+        background: rgba(226, 232, 240, 0.4); padding: 10px 16px; border-bottom: 1.5px solid #e2e8f0;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .advanced-config-header h4 { font-size: 13px; font-weight: 800; color: #334155; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .advanced-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 16px; }
+    .config-section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .config-section-title { font-size: 13px; font-weight: 800; color: #475569; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .config-inputs-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 12px; }
+    .config-input-box { flex: 1; text-align: center; }
+    .config-input-box label { font-size: 10.5px; font-weight: 800; color: #64748b; margin-bottom: 4px; display: block; }
+    .config-input-box input { height: 34px; padding: 4px 8px; font-size: 13px; text-align: center; font-weight: 700; border-radius: 8px; }
+    .config-input-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 </style>
 @endpush
 
@@ -151,7 +173,7 @@
                         <label>الصف المستهدف للاختبار *</label>
                         <div class="input-icon-group">
                             <i class="bi bi-layers"></i>
-                            <select name="grade_id" id="target-grade" class="form-control" onchange="validateGrades()" required>
+                            <select name="grade_id" id="target-grade" class="form-control" onchange="validateGrades(); updateAllStats();" required>
                                 <option value="">-- اختر الصف --</option>
                                 @foreach($grades as $g)
                                     <option value="{{ $g->id }}">{{ $g->name }}</option>
@@ -171,18 +193,18 @@
 
                 <div class="grid-2 mt-3">
                     <div class="form-group">
-                        <label>الدرجة الكلية *</label>
+                        <label>مدة الاختبار (بالدقائق) *</label>
                         <div class="input-icon-group">
-                            <i class="bi bi-award"></i>
-                            <input type="number" name="total_marks" class="form-control" value="{{ old('total_marks', 100) }}" min="1" required>
+                            <i class="bi bi-stopwatch"></i>
+                            <input type="number" name="duration_minutes" class="form-control" value="{{ old('duration_minutes', 60) }}" min="10" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <label>درجة النجاح *</label>
+                        <label>درجة النجاح المئوية (%) *</label>
                         <div class="input-icon-group">
-                            <i class="bi bi-check-circle"></i>
-                            <input type="number" name="pass_marks" class="form-control" value="{{ old('pass_marks', 60) }}" min="1" required>
+                            <i class="bi bi-percent"></i>
+                            <input type="number" name="pass_marks_percent" class="form-control" value="{{ old('pass_marks_percent', 50) }}" min="1" max="100" required>
                         </div>
                     </div>
                 </div>
@@ -222,7 +244,7 @@
                                 <label>المادة *</label>
                                 <div class="input-icon-group">
                                     <i class="bi bi-journal-text"></i>
-                                    <select name="configs[0][subject_id]" class="form-control subject-config-select" onchange="validateGrades()" required>
+                                    <select name="configs[0][subject_id]" class="form-control subject-config-select" onchange="validateGrades(); loadSubjectStats(this);" required>
                                         <option value="">-- اختر الصف أولاً --</option>
                                     </select>
                                 </div>
@@ -232,10 +254,106 @@
                                 <label>الأسئلة *</label>
                                 <div class="input-icon-group">
                                     <i class="bi bi-question-circle"></i>
-                                    <input type="number" name="configs[0][question_count]" class="form-control" value="5" min="1" required>
+                                    <input type="number" name="configs[0][question_count]" class="form-control question-count-input" value="5" min="1" oninput="validateConfigStats(this)" required>
+                                </div>
+                                <small class="total-available-label text-muted" style="display: block; margin-top: 4px; font-weight: 800; font-size: 11px;"></small>
+                            </div>
+                            
+                            <div>
+                                <label>درجة كل سؤال *</label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-award"></i>
+                                    <input type="number" name="configs[0][marks_per_question]" class="form-control" value="1" min="1" required>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- خيارات متقدمة للتوزيع -->
+                        <div class="advanced-config-panel">
+                            <div class="advanced-config-header">
+                                <h4><i class="bi bi-sliders"></i> التوزيع المتقدم (اختياري)</h4>
+                                <span class="badge badge-gray" style="font-size: 10px; font-weight: bold;"><i class="bi bi-magic text-primary"></i> تلقائي إذا تُرك فارغاً</span>
+                            </div>
+                            
+                            <div class="advanced-grid" style="display: grid; grid-template-columns: 1fr; gap: 16px; padding: 16px;">
+                                <!-- الصعوبة -->
+                                <div class="config-section">
+                                    <h5 class="config-section-title"><i class="bi bi-bar-chart-fill text-warning"></i> المستويات المعرفية وتوزيع الدرجات</h5>
+                                    <div class="config-inputs-row" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <!-- سهل -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-circle-fill text-success"></i> سهل:</span>
+                                            <div style="display: flex; gap: 6px; align-items: center;">
+                                                <input type="number" name="configs[0][easy_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                                <span style="font-size: 10px; color: #94a3b8;">درجة:</span>
+                                                <input type="number" name="configs[0][easy_marks]" class="form-control" min="1" value="1" placeholder="الدرجة" style="width: 50px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            </div>
+                                            <span class="stats-badge stats-easy text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+
+                                        <!-- متوسط -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-circle-fill text-warning"></i> متوسط:</span>
+                                            <div style="display: flex; gap: 6px; align-items: center;">
+                                                <input type="number" name="configs[0][medium_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                                <span style="font-size: 10px; color: #94a3b8;">درجة:</span>
+                                                <input type="number" name="configs[0][medium_marks]" class="form-control" min="1" value="1" placeholder="الدرجة" style="width: 50px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            </div>
+                                            <span class="stats-badge stats-medium text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+
+                                        <!-- صعب -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-circle-fill text-danger"></i> صعب:</span>
+                                            <div style="display: flex; gap: 6px; align-items: center;">
+                                                <input type="number" name="configs[0][hard_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                                <span style="font-size: 10px; color: #94a3b8;">درجة:</span>
+                                                <input type="number" name="configs[0][hard_marks]" class="form-control" min="1" value="1" placeholder="الدرجة" style="width: 50px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            </div>
+                                            <span class="stats-badge stats-hard text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- النوع -->
+                                <div class="config-section">
+                                    <h5 class="config-section-title"><i class="bi bi-ui-checks-grid text-primary"></i> نوع الأسئلة المتوفرة</h5>
+                                    <div class="config-inputs-row" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <!-- خيارات -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-list-check text-primary"></i> خيارات (MCQ):</span>
+                                            <input type="number" name="configs[0][mcq_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            <span class="stats-badge stats-mcq text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+
+                                        <!-- صح/خطأ -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-check-circle text-info"></i> صح / خطأ:</span>
+                                            <input type="number" name="configs[0][tf_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            <span class="stats-badge stats-tf text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+
+                                        <!-- توصيل -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-arrow-left-right text-secondary"></i> توصيل (Matching):</span>
+                                            <input type="number" name="configs[0][matching_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            <span class="stats-badge stats-matching text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+
+                                        <!-- مقالي -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-file-earmark-text text-dark"></i> مقالي (Essay):</span>
+                                            <input type="number" name="configs[0][essay_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                            <span class="stats-badge stats-essay text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- صندوق التنبيهات المباشر للمادة -->
+                        <div class="validation-summary" style="margin-top: 10px; font-size: 12px; font-weight: bold; padding: 0 10px;"></div>
+
                     </div>
                     
                 </div>
@@ -298,7 +416,7 @@
                     <label>المادة *</label>
                     <div class="input-icon-group">
                         <i class="bi bi-journal-text"></i>
-                        <select name="configs[${configIndex}][subject_id]" class="form-control subject-config-select" onchange="validateGrades()" required>
+                        <select name="configs[${configIndex}][subject_id]" class="form-control subject-config-select" onchange="validateGrades(); loadSubjectStats(this);" required>
                             <option value="">-- اختر الصف أولاً --</option>
                         </select>
                     </div>
@@ -308,10 +426,104 @@
                     <label>الأسئلة *</label>
                     <div class="input-icon-group">
                         <i class="bi bi-question-circle"></i>
-                        <input type="number" name="configs[${configIndex}][question_count]" class="form-control" value="5" min="1" required>
+                        <input type="number" name="configs[${configIndex}][question_count]" class="form-control question-count-input" value="5" min="1" oninput="validateConfigStats(this)" required>
+                    </div>
+                    <small class="total-available-label text-muted" style="display: block; margin-top: 4px; font-weight: 800; font-size: 11px;"></small>
+                </div>
+                <div>
+                    <label>درجة كل سؤال *</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-award"></i>
+                        <input type="number" name="configs[${configIndex}][marks_per_question]" class="form-control" value="1" min="1" required>
                     </div>
                 </div>
             </div>
+
+            <!-- خيارات متقدمة للتوزيع -->
+            <div class="advanced-config-panel">
+                <div class="advanced-config-header">
+                    <h4><i class="bi bi-sliders"></i> التوزيع المتقدم (اختياري)</h4>
+                    <span class="badge badge-gray" style="font-size: 10px; font-weight: bold;"><i class="bi bi-magic text-primary"></i> تلقائي إذا تُرك فارغاً</span>
+                </div>
+                
+                <div class="advanced-grid" style="display: grid; grid-template-columns: 1fr; gap: 16px; padding: 16px;">
+                    <!-- الصعوبة -->
+                    <div class="config-section">
+                        <h5 class="config-section-title"><i class="bi bi-bar-chart-fill text-warning"></i> المستويات المعرفية وتوزيع الدرجات</h5>
+                        <div class="config-inputs-row" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- سهل -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-circle-fill text-success"></i> سهل:</span>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <input type="number" name="configs[${configIndex}][easy_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                    <span style="font-size: 10px; color: #94a3b8;">درجة:</span>
+                                    <input type="number" name="configs[${configIndex}][easy_marks]" class="form-control" min="1" value="1" placeholder="الدرجة" style="width: 50px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                </div>
+                                <span class="stats-badge stats-easy text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+
+                            <!-- متوسط -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-circle-fill text-warning"></i> متوسط:</span>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <input type="number" name="configs[${configIndex}][medium_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                    <span style="font-size: 10px; color: #94a3b8;">درجة:</span>
+                                    <input type="number" name="configs[${configIndex}][medium_marks]" class="form-control" min="1" value="1" placeholder="الدرجة" style="width: 50px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                </div>
+                                <span class="stats-badge stats-medium text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+
+                            <!-- صعب -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-circle-fill text-danger"></i> صعب:</span>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <input type="number" name="configs[${configIndex}][hard_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                    <span style="font-size: 10px; color: #94a3b8;">درجة:</span>
+                                    <input type="number" name="configs[${configIndex}][hard_marks]" class="form-control" min="1" value="1" placeholder="الدرجة" style="width: 50px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                </div>
+                                <span class="stats-badge stats-hard text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- النوع -->
+                    <div class="config-section">
+                        <h5 class="config-section-title"><i class="bi bi-ui-checks-grid text-primary"></i> نوع الأسئلة المتوفرة</h5>
+                        <div class="config-inputs-row" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- خيارات -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-list-check text-primary"></i> خيارات (MCQ):</span>
+                                <input type="number" name="configs[${configIndex}][mcq_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                <span class="stats-badge stats-mcq text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+
+                            <!-- صح/خطأ -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-check-circle text-info"></i> صح / خطأ:</span>
+                                <input type="number" name="configs[${configIndex}][tf_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                <span class="stats-badge stats-tf text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+
+                            <!-- توصيل -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-arrow-left-right text-secondary"></i> توصيل (Matching):</span>
+                                <input type="number" name="configs[${configIndex}][matching_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                <span class="stats-badge stats-matching text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+
+                            <!-- مقالي -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <span style="font-size: 11px; font-weight: bold; color: #475569;"><i class="bi bi-file-earmark-text text-dark"></i> مقالي (Essay):</span>
+                                <input type="number" name="configs[${configIndex}][essay_count]" class="form-control" min="0" placeholder="العدد" style="width: 70px; height: 30px; font-size: 11px; padding: 2px 6px;" oninput="validateConfigStats(this)">
+                                <span class="stats-badge stats-essay text-muted" style="font-size: 10px; font-weight: bold;">متوفر: -</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- صندوق التنبيهات المباشر للمادة -->
+            <div class="validation-summary" style="margin-top: 10px; font-size: 12px; font-weight: bold; padding: 0 10px;"></div>
         `;
         list.appendChild(div);
         configIndex++;
@@ -328,6 +540,7 @@
         if (!gradeId) { 
             subjectSel.innerHTML = '<option value="">-- اختر الصف أولاً --</option>'; 
             validateGrades();
+            loadSubjectStats(subjectSel);
             return; 
         }
         
@@ -339,7 +552,216 @@
                     subjectSel.innerHTML += `<option value="${s.id}">${s.name}</option>`; 
                 });
                 validateGrades();
+                loadSubjectStats(subjectSel);
             });
+    }
+
+    // جلب إحصائيات الأسئلة التابعة للمادة المختارة حية
+    window.loadSubjectStats = function(selectEl) {
+        const card = selectEl.closest('.source-card');
+        const subjectId = selectEl.value;
+        const gradeSelect = card.querySelector('.grade-config-select');
+        const targetGradeId = gradeSelect ? gradeSelect.value : document.getElementById('target-grade').value;
+        const advPanel = card.querySelector('.advanced-config-panel');
+        const totalLabel = card.querySelector('.total-available-label');
+
+        if (!subjectId || !targetGradeId) {
+            card.querySelectorAll('.stats-badge').forEach(b => {
+                b.textContent = 'متوفر: -';
+                b.className = 'stats-badge text-muted';
+                delete b.dataset.max;
+            });
+            delete selectEl.dataset.total;
+            if (advPanel) advPanel.classList.remove('active');
+            if (totalLabel) totalLabel.innerHTML = '';
+            return;
+        }
+
+        fetch(`{{ url('admin/subjects') }}/${subjectId}/question-stats/${targetGradeId}`)
+            .then(r => r.json())
+            .then(stats => {
+                // حفظ البيانات
+                card.dataset.stats = JSON.stringify(stats);
+                selectEl.dataset.total = stats.total;
+
+                // تفعيل التوزيع المتقدم
+                if (advPanel) advPanel.classList.add('active');
+
+                // عرض إجمالي الأسئلة المتواجدة
+                if (totalLabel) {
+                    if (stats.total > 0) {
+                        totalLabel.innerHTML = `<span class="text-success"><i class="bi bi-info-circle-fill"></i> إجمالي الأسئلة المتاحة: ${stats.total} سؤال</span>`;
+                    } else {
+                        totalLabel.innerHTML = `<span class="text-danger"><i class="bi bi-x-circle-fill"></i> لا توجد أي أسئلة متوفرة!</span>`;
+                    }
+                }
+
+                const setStat = (selector, count, colorClass) => {
+                    const el = card.querySelector(selector);
+                    el.innerHTML = `<span class="${colorClass}">متوفر: ${count}</span>`;
+                    el.dataset.max = count;
+                };
+
+                setStat('.stats-easy', stats.difficulties.easy, 'text-success');
+                setStat('.stats-medium', stats.difficulties.medium, 'text-warning');
+                setStat('.stats-hard', stats.difficulties.hard, 'text-danger');
+
+                setStat('.stats-mcq', stats.types.mcq, 'text-primary');
+                setStat('.stats-tf', stats.types.tf, 'text-info');
+                setStat('.stats-matching', stats.types.matching, 'text-secondary');
+                setStat('.stats-essay', stats.types.essay, 'text-dark');
+
+                validateConfigStats(selectEl);
+            });
+    }
+
+    // تحديث إحصائيات كل الكروت عند تغيير الصف المستهدف للاختبار
+    window.updateAllStats = function() {
+        document.querySelectorAll('.source-card').forEach(card => {
+            const subjectSel = card.querySelector('.subject-config-select');
+            if (subjectSel && subjectSel.value) {
+                loadSubjectStats(subjectSel);
+            }
+        });
+    }
+
+    // التحقق الذكي من الإدخال مقارنة بالمتوفر في بنك الأسئلة
+    window.validateConfigStats = function(el) {
+        const card = el.closest('.source-card');
+        if (!card) return;
+
+        const qCountInput = card.querySelector('.question-count-input');
+        const qCount = parseInt(qCountInput.value) || 0;
+        const subjectSel = card.querySelector('.subject-config-select');
+        const totalMax = parseInt(subjectSel.dataset.total);
+
+        let hasError = false;
+        let errorMsg = "";
+
+        // التحقق من تواجد الأسئلة أصلاً
+        if (!isNaN(totalMax)) {
+            if (totalMax === 0) {
+                qCountInput.style.borderColor = '#ef4444';
+                qCountInput.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
+                errorMsg += `<div class="text-danger" style="margin-bottom: 4px;"><i class="bi bi-x-circle-fill"></i> لا توجد أي أسئلة متوفرة لهذه المادة إطلاقاً في الصف المختار!</div>`;
+                hasError = true;
+            } else if (qCount > totalMax) {
+                qCountInput.style.borderColor = '#ef4444';
+                qCountInput.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
+                errorMsg += `<div class="text-danger" style="margin-bottom: 4px;"><i class="bi bi-exclamation-circle-fill"></i> العدد المطلوب (${qCount}) يتجاوز المتاح للمادة (${totalMax}).</div>`;
+                hasError = true;
+            } else {
+                qCountInput.style.borderColor = '';
+                qCountInput.style.boxShadow = '';
+            }
+        }
+
+        const getVal = (selector) => {
+            const input = card.querySelector(selector);
+            return input ? (parseInt(input.value) || 0) : 0;
+        };
+        const getMax = (selector) => {
+            const stat = card.querySelector(selector);
+            return stat ? (parseInt(stat.dataset.max) || 0) : 0;
+        };
+
+        const easyVal = getVal('input[name*="[easy_count]"]');
+        const easyMax = getMax('.stats-easy');
+        const mediumVal = getVal('input[name*="[medium_count]"]');
+        const mediumMax = getMax('.stats-medium');
+        const hardVal = getVal('input[name*="[hard_count]"]');
+        const hardMax = getMax('.stats-hard');
+
+        const mcqVal = getVal('input[name*="[mcq_count]"]');
+        const mcqMax = getMax('.stats-mcq');
+        const tfVal = getVal('input[name*="[tf_count]"]');
+        const tfMax = getMax('.stats-tf');
+        const matchingVal = getVal('input[name*="[matching_count]"]');
+        const matchingMax = getMax('.stats-matching');
+        const essayVal = getVal('input[name*="[essay_count]"]');
+        const essayMax = getMax('.stats-essay');
+
+
+
+        const validateField = (inputSelector, val, max, statsSelector, label) => {
+            const input = card.querySelector(inputSelector);
+            const statsEl = card.querySelector(statsSelector);
+            if (!input || !statsEl) return;
+            if (val > max) {
+                input.style.borderColor = '#ef4444';
+                input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.15)';
+                statsEl.innerHTML = `<span class="text-danger" style="font-weight:900;"><i class="bi bi-x-circle-fill"></i> تجاوز المتوفر (${max})</span>`;
+                hasError = true;
+            } else {
+                input.style.borderColor = '';
+                input.style.boxShadow = '';
+                // إرجاع اللون الأصلي
+                const colorMap = {
+                    '.stats-easy': ['text-success', 'سهل'],
+                    '.stats-medium': ['text-warning', 'متوسط'],
+                    '.stats-hard': ['text-danger', 'صعب'],
+                    '.stats-mcq': ['text-primary', 'خيارات'],
+                    '.stats-tf': ['text-info', 'صح/خطأ'],
+                    '.stats-matching': ['text-secondary', 'توصيل'],
+                    '.stats-essay': ['text-dark', 'مقالي']
+                };
+                if (colorMap[statsSelector]) {
+                    statsEl.innerHTML = `<span class="${colorMap[statsSelector][0]}">متوفر: ${max}</span>`;
+                }
+            }
+        };
+
+        validateField('input[name*="[easy_count]"]', easyVal, easyMax, '.stats-easy');
+        validateField('input[name*="[medium_count]"]', mediumVal, mediumMax, '.stats-medium');
+        validateField('input[name*="[hard_count]"]', hardVal, hardMax, '.stats-hard');
+
+        validateField('input[name*="[mcq_count]"]', mcqVal, mcqMax, '.stats-mcq');
+        validateField('input[name*="[tf_count]"]', tfVal, tfMax, '.stats-tf');
+        validateField('input[name*="[matching_count]"]', matchingVal, matchingMax, '.stats-matching');
+        validateField('input[name*="[essay_count]"]', essayVal, essayMax, '.stats-essay');
+
+        // التحقق من تماشي المجموع الكلي
+        const diffSum = easyVal + mediumVal + hardVal;
+        const typeSum = mcqVal + tfVal + matchingVal + essayVal;
+
+        if (diffSum > 0 && diffSum !== qCount) {
+            errorMsg += `<div class="text-danger" style="margin-bottom: 4px;"><i class="bi bi-exclamation-triangle-fill"></i> مجموع مستويات الصعوبة (${diffSum}) لا يساوي إجمالي الأسئلة المطلوب (${qCount}).</div>`;
+            hasError = true;
+        }
+
+        if (typeSum > 0 && typeSum !== qCount) {
+            errorMsg += `<div class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> مجموع أنواع الأسئلة (${typeSum}) لا يساوي إجمالي الأسئلة المطلوب (${qCount}).</div>`;
+            hasError = true;
+        }
+
+        card.querySelector('.validation-summary').innerHTML = errorMsg;
+
+        // تعطيل أو تمكين زر الإرسال بناءً على كل الكروت
+        const submitBtn = document.getElementById('submit-btn');
+        let anyCardError = false;
+        
+        // التحقق مما إذا كان هناك أي كرت يحتوي على أخطاء
+        document.querySelectorAll('.source-card').forEach(c => {
+            const summary = c.querySelector('.validation-summary').textContent.trim();
+            if (summary !== "") anyCardError = true;
+            
+            // تحقق إذا كان أي مدخل أحمر
+            c.querySelectorAll('input').forEach(inp => {
+                if (inp.style.borderColor === 'rgb(239, 68, 68)' || inp.style.borderColor === '#ef4444') {
+                    anyCardError = true;
+                }
+            });
+        });
+
+        if (anyCardError) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
     }
 
     // التحقق الذكي من حظر سحب الأسئلة من نفس الصف المستهدف
@@ -366,10 +788,16 @@
             submitBtn.style.cursor = 'not-allowed';
         } else {
             alertBox.style.display = 'none';
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
+            // نقوم بالتحقق من أخطاء الكروت لتحديث الزر
+            const anyCard = document.querySelector('.source-card input');
+            if (anyCard) validateConfigStats(anyCard);
         }
     }
+
+    // ربط تغيير الصف المستهدف لتحديث الإحصائيات فورياً
+    document.getElementById('target-grade').addEventListener('change', () => {
+        validateGrades();
+        updateAllStats();
+    });
 </script>
 @endpush

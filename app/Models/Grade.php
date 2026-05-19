@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Grade extends Model
@@ -14,9 +15,9 @@ class Grade extends Model
 
     protected $casts = ['order' => 'integer'];
 
-    public function subjects(): HasMany
+    public function subjects(): BelongsToMany
     {
-        return $this->hasMany(Subject::class);
+        return $this->belongsToMany(Subject::class)->withTimestamps();
     }
 
     public function exams(): HasMany
@@ -29,6 +30,11 @@ class Grade extends Model
         return $this->hasMany(Student::class, 'applying_grade_id');
     }
 
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class);
+    }
+
     public function scopeOrdered($query)
     {
         return $query->orderBy('order');
@@ -37,6 +43,6 @@ class Grade extends Model
     // عدد الأسئلة في هذا الصف
     public function questionsCount(): int
     {
-        return $this->subjects->sum(fn($s) => $s->questions()->count());
+        return $this->questions()->count();
     }
 }

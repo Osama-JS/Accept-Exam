@@ -31,12 +31,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Grades
+        Route::get('grades/{grade}/subjects', [GradeController::class, 'getSubjects'])->name('grades.subjects');
+        Route::post('grades/{grade}/subjects', [GradeController::class, 'syncSubjects'])->name('grades.subjects.sync');
         Route::resource('grades', GradeController::class)->except(['show']);
 
         // Subjects
         Route::resource('subjects', SubjectController::class)->except(['show']);
         Route::get('subjects/by-grade/{grade}', [SubjectController::class, 'byGrade'])
             ->name('subjects.by-grade');
+        Route::get('subjects/{subject}/question-stats/{grade}', [SubjectController::class, 'questionStats'])
+            ->name('subjects.question-stats');
 
         // Questions
         Route::delete('questions/bulk-destroy', [QuestionController::class, 'bulkDestroy'])

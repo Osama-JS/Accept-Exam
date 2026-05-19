@@ -4,18 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subject extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['grade_id', 'name', 'icon'];
+    protected $fillable = ['name', 'icon'];
 
-    public function grade(): BelongsTo
+    public function grades(): BelongsToMany
     {
-        return $this->belongsTo(Grade::class);
+        return $this->belongsToMany(Grade::class)->withTimestamps();
     }
 
     public function questions(): HasMany

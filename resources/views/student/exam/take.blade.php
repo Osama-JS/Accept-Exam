@@ -254,16 +254,67 @@
                 <div class="question-text">{{ $question['text'] }}</div>
                 
                 <div class="choices-grid">
-                    @php $letters = ['أ', 'ب', 'ج', 'د', 'هـ', 'و']; @endphp
-                    @foreach($question['choices'] as $ci => $choice)
-                    <label class="choice-label" id="lbl-{{ $question['id'] }}-{{ $choice['id'] }}">
-                        <input type="radio" name="answers[{{ $question['id'] }}]" 
-                               value="{{ $choice['id'] }}"
-                               onchange="onAnswerSelected({{ $i }}, {{ $question['id'] }}, this)">
-                        <span class="choice-letter">{{ $letters[$ci] ?? ($ci+1) }}</span>
-                        <span>{{ $choice['text'] }}</span>
-                    </label>
-                    @endforeach
+                    @if($question['type'] === 'essay')
+                        <!-- السؤال المقالي -->
+                        <div class="essay-container" style="width: 100%;">
+                            <label class="ws-label" style="font-weight: 800; color: #64748b; margin-bottom: 12px; display: block; font-size: 14.5px;">أدخل إجابتك النصية هنا:</label>
+                            <textarea name="answers[{{ $question['id'] }}]" 
+                                      class="ws-textarea essay-textarea" 
+                                      placeholder="اكتب إجابتك هنا بدقة ووضوح..." 
+                                      style="width: 100%; min-height: 160px; padding: 18px 24px; border: 2px solid #e2e8f0; border-radius: 16px; font-family: inherit; font-size: 15.5px; font-weight: 600; line-height: 1.6; color: #334155; transition: all 0.2s; resize: vertical;" 
+                                      oninput="onEssayInput({{ $i }}, {{ $question['id'] }}, this)"></textarea>
+                        </div>
+                    @elseif($question['type'] === 'matching')
+                        <!-- سؤال التوصيل -->
+                        <div class="matching-container" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                            <div style="font-size: 14.5px; font-weight: 850; color: #64748b; margin-bottom: 8px;">صل عناصر العمود الأيمن بما يناسبها من العمود الأيسر:</div>
+                            @php
+                                $choices = $question['choices'];
+                                $leftTexts = collect($choices)->map(function($c) {
+                                    $parts = explode('|', $c['text']);
+                                    return trim($parts[1] ?? '');
+                                })->filter()->unique()->shuffle();
+                            @endphp
+
+                            @foreach($choices as $ci => $choice)
+                                @php
+                                    $parts = explode('|', $choice['text']);
+                                    $rightText = trim($parts[0] ?? '');
+                                @endphp
+                                <div class="matching-row-item" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 24px; border: 2px solid #e2e8f0; border-radius: 16px; background: #fff; transition: all 0.2s;">
+                                    <div class="right-item" style="font-size: 15.5px; font-weight: 700; color: #0f172a; width: 45%;">
+                                        <span class="choice-letter" style="display: inline-flex; margin-left: 8px; font-size: 13px; width: 28px; height: 28px; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; color: #64748b; font-weight: 800;">{{ $ci + 1 }}</span>
+                                        {{ $rightText }}
+                                    </div>
+                                    <div style="color: var(--primary); font-weight: 800;"><i class="bi bi-arrow-left-right"></i></div>
+                                    <div class="left-dropdown" style="width: 45%;">
+                                        <select name="answers[{{ $question['id'] }}][{{ $choice['id'] }}]" 
+                                                class="ws-select matching-select" 
+                                                style="width: 100%; padding: 10px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 14.5px; font-weight: 600; color: #334155; cursor: pointer; transition: border-color 0.2s; background: #fff;"
+                                                onchange="onMatchingSelected({{ $i }}, {{ $question['id'] }}, this)"
+                                                required>
+                                            <option value="">-- اختر التطابق المناسب --</option>
+                                            @foreach($leftTexts as $lt)
+                                                <option value="{{ $lt }}">{{ $lt }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <!-- اختيار من متعدد أو صح أو خطأ -->
+                        @php $letters = ['أ', 'ب', 'ج', 'د', 'هـ', 'و']; @endphp
+                        @foreach($question['choices'] as $ci => $choice)
+                        <label class="choice-label" id="lbl-{{ $question['id'] }}-{{ $choice['id'] }}">
+                            <input type="radio" name="answers[{{ $question['id'] }}]" 
+                                   value="{{ $choice['id'] }}"
+                                   onchange="onAnswerSelected({{ $i }}, {{ $question['id'] }}, this)">
+                            <span class="choice-letter">{{ $letters[$ci] ?? ($ci+1) }}</span>
+                            <span>{{ $choice['text'] }}</span>
+                        </label>
+                        @endforeach
+                    @endif
                 </div>
             </div>
 
@@ -315,20 +366,43 @@
         const totalSteps = {{ count($questions) }};
         const answeredQuestions = new Set();
         
-        // ⏱️ محرك المؤقت الزمني المتصاعد
-        let elapsedSeconds = 0;
+        // ⏱️ محرك المؤقت التنازلي
+        const durationMinutes = {{ $exam->duration_minutes ?? 60 }};
+        let remainingSeconds = durationMinutes * 60;
         const timerCounter = document.getElementById('timer-counter');
         
-        const stopwatchInterval = setInterval(() => {
-            elapsedSeconds++;
-            const minutes = Math.floor(elapsedSeconds / 60);
-            const seconds = elapsedSeconds % 60;
+        const countdownInterval = setInterval(() => {
+            if (remainingSeconds <= 0) {
+                clearInterval(countdownInterval);
+                if (timerCounter) timerCounter.textContent = "00:00";
+                
+                Swal.fire({
+                    title: 'انتهى الوقت!',
+                    text: 'عذراً، لقد انتهى وقت الاختبار. سيتم تسليم إجاباتك تلقائياً...',
+                    icon: 'warning',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    timer: 3500
+                }).then(() => {
+                    document.getElementById('exam-form').submit();
+                });
+                return;
+            }
+
+            remainingSeconds--;
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
             
             const formattedMinutes = String(minutes).padStart(2, '0');
             const formattedSeconds = String(seconds).padStart(2, '0');
             
             if (timerCounter) {
                 timerCounter.textContent = `${formattedMinutes}:${formattedSeconds}`;
+                if (remainingSeconds < 300 && remainingSeconds % 2 === 0) {
+                    timerCounter.style.color = '#ef4444';
+                } else {
+                    timerCounter.style.color = '';
+                }
             }
         }, 1000);
 
@@ -387,6 +461,54 @@
                     nextStep();
                 }
             }, 600);
+        }
+
+        window.onEssayInput = function(stepIndex, questionId, textarea) {
+            if (textarea.value.trim().length > 0) {
+                answeredQuestions.add(questionId);
+                const dot = document.getElementById(`dot-${stepIndex}`);
+                if (dot) dot.classList.add('answered');
+            } else {
+                answeredQuestions.delete(questionId);
+                const dot = document.getElementById(`dot-${stepIndex}`);
+                if (dot) dot.classList.remove('answered');
+            }
+            updateUI();
+        }
+
+        window.onMatchingSelected = function(stepIndex, questionId, selectElement) {
+            const wizardCard = selectElement.closest('.question-wizard');
+            if (!wizardCard) return;
+            
+            const selects = wizardCard.querySelectorAll('.matching-select');
+            let allSelected = true;
+            selects.forEach(sel => {
+                if (sel.value === '') {
+                    allSelected = false;
+                }
+            });
+            
+            const rowItem = selectElement.closest('.matching-row-item');
+            if (rowItem) {
+                if (selectElement.value !== '') {
+                    rowItem.style.borderColor = 'var(--primary)';
+                    rowItem.style.background = 'rgba(118, 181, 27, 0.02)';
+                } else {
+                    rowItem.style.borderColor = '#e2e8f0';
+                    rowItem.style.background = '#fff';
+                }
+            }
+            
+            if (allSelected) {
+                answeredQuestions.add(questionId);
+                const dot = document.getElementById(`dot-${stepIndex}`);
+                if (dot) dot.classList.add('answered');
+            } else {
+                answeredQuestions.delete(questionId);
+                const dot = document.getElementById(`dot-${stepIndex}`);
+                if (dot) dot.classList.remove('answered');
+            }
+            updateUI();
         }
 
         // ── دوال التحكم بالنافذة المنبثقة الذكية ──

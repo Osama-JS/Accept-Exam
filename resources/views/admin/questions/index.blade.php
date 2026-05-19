@@ -260,6 +260,184 @@
         color: #475569; transition: all 0.2s;
     }
     .option-item.is-correct { background: #f0fdf4; border-color: #4ade80; color: #166534; box-shadow: 0 2px 8px rgba(74, 222, 128, 0.1); }
+
+    /* ── الترقيم المطور المدمج مع لارافل (Pagination) ── */
+    .pagination-wrapper {
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        padding: 20px 28px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.015);
+    }
+    .pagination-wrapper nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .pagination-wrapper nav div:first-child {
+        font-size: 13.5px;
+        font-weight: 750;
+        color: var(--text-muted);
+    }
+    .pagination-wrapper nav div:last-child {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .pagination-wrapper nav a, 
+    .pagination-wrapper nav span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        color: var(--text-main) !important;
+        font-size: 13.5px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        background: #ffffff;
+        box-shadow: none !important;
+    }
+    .pagination-wrapper nav a:first-child,
+    .pagination-wrapper nav a:last-child,
+    .pagination-wrapper nav span:first-child,
+    .pagination-wrapper nav span:last-child {
+        width: auto;
+        padding: 0 16px;
+        gap: 6px;
+    }
+    .pagination-wrapper nav span[aria-current="page"] {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff !important;
+        box-shadow: 0 4px 12px var(--primary-light) !important;
+    }
+    .pagination-wrapper nav a:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-light);
+        transform: translateY(-1px);
+    }
+    .pagination-wrapper nav span[aria-disabled="true"] {
+        color: #cbd5e1 !important;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+    .pagination-wrapper nav svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* ── بطاقات الفلترة السريعة (Quick Filter Cards) ── */
+    .quick-filters-scroll {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 4px 4px 12px;
+        margin-bottom: 20px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(118, 181, 27, 0.2) transparent;
+        -webkit-overflow-scrolling: touch;
+    }
+    .quick-filters-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+    .quick-filters-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .quick-filters-scroll::-webkit-scrollbar-thumb {
+        background: rgba(118, 181, 27, 0.2);
+        border-radius: 10px;
+    }
+    .quick-filters-scroll::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+    }
+    
+    .quick-filter-card {
+        flex: 0 0 auto;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+    }
+    .quick-filter-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(118, 181, 27, 0.08);
+    }
+    .quick-filter-card.active {
+        background: linear-gradient(135deg, var(--primary), #5f9416);
+        border-color: var(--primary);
+        color: #ffffff !important;
+        box-shadow: 0 6px 18px rgba(118, 181, 27, 0.25);
+    }
+    .quick-filter-card .card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: rgba(118, 181, 27, 0.08);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: all 0.2s;
+    }
+    .quick-filter-card.active .card-icon {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+    .quick-filter-card .card-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .quick-filter-card .card-grade {
+        font-size: 10px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        transition: all 0.2s;
+    }
+    .quick-filter-card.active .card-grade {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    .quick-filter-card .card-subject {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-main);
+        transition: all 0.2s;
+    }
+    .quick-filter-card.active .card-subject {
+        color: #ffffff;
+    }
+    .quick-filter-card .card-count {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        color: #475569;
+        transition: all 0.2s;
+    }
+    .quick-filter-card.active .card-count {
+        background: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+    }
 </style>
 @endpush
 
@@ -286,21 +464,21 @@
     </div>
 
     <!-- Row 2: Basic Filters & Toggles -->
-    <form method="GET" action="{{ route('admin.questions.index') }}" id="filterForm" style="display: flex; flex-direction: column; gap: 12px; border-top: 1.5px solid #f1f5f9; padding-top: 16px; margin: 0;">
+    <form method="GET" action="{{ route('admin.questions.index') }}" id="filterForm" onsubmit="fetchFilteredQuestions(); return false;" style="display: flex; flex-direction: column; gap: 12px; border-top: 1.5px solid #f1f5f9; padding-top: 16px; margin: 0;">
         <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-start; width: 100%;">
             <div class="search-box">
                 <i class="bi bi-search"></i>
-                <input type="text" name="search" placeholder="ابحث في نص السؤال..." value="{{ request('search') }}" autocomplete="off">
+                <input type="text" name="search" id="searchInput" placeholder="ابحث في نص السؤال..." value="{{ request('search') }}" autocomplete="off">
             </div>
 
-            <select name="grade_id" class="select-filter" onchange="this.form.submit()">
+            <select name="grade_id" id="gradeSelect" class="select-filter" onchange="fetchFilteredQuestions()">
                 <option value="">جميع الصفوف</option>
                 @foreach($grades ?? [] as $g)
                     <option value="{{ $g->id }}" {{ request('grade_id') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                 @endforeach
             </select>
 
-            <select name="subject_id" class="select-filter" onchange="this.form.submit()">
+            <select name="subject_id" id="subjectSelect" class="select-filter" onchange="fetchFilteredQuestions()">
                 <option value="">جميع المواد</option>
                 @foreach($subjects ?? [] as $s)
                     <option value="{{ $s->id }}" {{ request('subject_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
@@ -310,6 +488,14 @@
             <button type="button" class="btn-toggle-filters" id="toggleAdvancedBtn">
                 <i class="bi bi-sliders"></i> فلاتر متقدمة
             </button>
+
+            <select name="per_page" id="perPageSelect" class="select-filter" style="min-width: 130px;" onchange="fetchFilteredQuestions()">
+                <option value="15" {{ request('per_page') == '15' || !request('per_page') ? 'selected' : '' }}>15 سؤال/صفحة</option>
+                <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 أسئلة/صفحة</option>
+                <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 سؤال/صفحة</option>
+                <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 سؤال/صفحة</option>
+                <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 سؤال/صفحة</option>
+            </select>
             
             <div style="margin-right: auto; display: flex; gap: 10px; align-items: center;">
                 @if(request()->hasAny(['grade_id', 'subject_id', 'search', 'difficulty', 'type']))
@@ -344,7 +530,7 @@
 
                 <div style="min-width: 220px;">
                     <label style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-bottom: 8px; display: block;">نوع السؤال</label>
-                    <select name="type" class="select-filter" style="width: 100%;" onchange="this.form.submit()">
+                    <select name="type" id="typeSelect" class="select-filter" style="width: 100%;" onchange="fetchFilteredQuestions()">
                         <option value="">جميع الأنواع</option>
                         <option value="mcq" {{ request('type') == 'mcq' ? 'selected' : '' }}>🟢 اختيار من متعدد</option>
                         <option value="tf" {{ request('type') == 'tf' ? 'selected' : '' }}>⚖️ صح أو خطأ</option>
@@ -356,6 +542,30 @@
             </div>
         </div>
     </form>
+</div>
+
+<!-- بطاقات الفلترة السريعة -->
+<div id="quick-filters-container">
+    @if(!empty($quickFilters))
+    <div class="quick-filters-scroll">
+        @foreach($quickFilters as $filter)
+            @php 
+                $isActive = (request('grade_id') == $filter['grade_id'] && request('subject_id') == $filter['subject_id']);
+            @endphp
+            <div class="quick-filter-card {{ $isActive ? 'active' : '' }}" 
+                 onclick="applyQuickFilter(this, '{{ $filter['grade_id'] }}', '{{ $filter['subject_id'] }}')">
+                <div class="card-icon">
+                    <i class="bi bi-bookmark-star-fill"></i>
+                </div>
+                <div class="card-info">
+                    <span class="card-grade">{{ $filter['grade_name'] }}</span>
+                    <span class="card-subject">{{ $filter['subject_name'] }}</span>
+                </div>
+                <span class="card-count">{{ $filter['count'] }}</span>
+            </div>
+        @endforeach
+    </div>
+    @endif
 </div>
 
 <!-- شريط الإجراءات الجماعية -->
@@ -397,7 +607,7 @@
     </div>
 </div>
 
-<div class="questions-list-container">
+<div class="questions-list-container" id="dataGrid">
     @if($questions->isEmpty())
         <div style="text-align: center; padding: 80px 20px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;">
             <div style="font-size: 56px; color: #cbd5e0; margin-bottom: 16px;"><i class="bi bi-inboxes"></i></div>
@@ -447,7 +657,7 @@
                     <div class="q-meta-badges">
                         <span class="q-badge badge-id">#{{ $q->id }}</span>
                         <span class="q-badge badge-subject"><i class="bi bi-book"></i> {{ $q->subject->name ?? 'عام' }}</span>
-                        <span class="q-badge badge-grade">{{ $q->subject->grade->name ?? 'عام' }}</span>
+                        <span class="q-badge badge-grade">{{ $q->grade->name ?? 'عام' }}</span>
                         
                         @if($q->difficulty)
                             @if($q->difficulty == 'easy')
@@ -513,20 +723,76 @@
     @endif
 </div>
 
-@if($questions->hasPages())
-<div class="pagination-wrapper" style="animation: pageIn .4s cubic-bezier(0.16, 1, 0.3, 1); margin-top: 24px;">
-    {{ $questions->appends(request()->query())->links() }}
+<div id="pagination-container">
+    @if($questions->hasPages())
+    <div class="pagination-wrapper" style="animation: pageIn .4s cubic-bezier(0.16, 1, 0.3, 1); margin-top: 24px;">
+        {{ $questions->appends(request()->query())->links() }}
+    </div>
+    @endif
 </div>
-@endif
 
 @endsection
 
 @push('scripts')
 <script>
+    // ── تهيئة وتحديث مستمعي العمليات الجماعية (Bulk Actions Initialization) ──
+    function initBulkActions() {
+        const selectAll = document.getElementById('selectAll');
+        const rowCbs = document.querySelectorAll('.row-cb');
+        const bulkToolbar = document.getElementById('bulkToolbar');
+        const countSpan = document.getElementById('selectedCount');
+
+        function updateBulk() {
+            const checkedCount = document.querySelectorAll('.row-cb:checked').length;
+            const totalCbs = document.querySelectorAll('.row-cb').length;
+            if(checkedCount > 0) {
+                bulkToolbar.style.display = 'flex';
+                countSpan.textContent = checkedCount;
+            } else {
+                bulkToolbar.style.display = 'none';
+            }
+            if(selectAll) {
+                selectAll.checked = checkedCount === totalCbs && totalCbs > 0;
+                selectAll.indeterminate = checkedCount > 0 && checkedCount < totalCbs;
+            }
+        }
+
+        if(selectAll) {
+            // تجنب تكرار المستمعين في الـ AJAX
+            const newSelectAll = selectAll.cloneNode(true);
+            selectAll.parentNode.replaceChild(newSelectAll, selectAll);
+            
+            newSelectAll.addEventListener('change', function() {
+                const freshCbs = document.querySelectorAll('.row-cb');
+                freshCbs.forEach(cb => cb.checked = this.checked);
+                updateBulk();
+            });
+        }
+
+        rowCbs.forEach(cb => {
+            const newCb = cb.cloneNode(true);
+            cb.parentNode.replaceChild(newCb, cb);
+            newCb.addEventListener('change', updateBulk);
+        });
+        
+        updateBulk();
+    }
+
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const toggleBtn = document.getElementById('toggleAdvancedBtn');
         const advancedPanel = document.getElementById('advancedFiltersPanel');
+        const searchInput = document.getElementById('searchInput');
         
+        initBulkActions();
+
         // التحقق مما إذا كان هناك فلتر متقدم نشط لفتح اللوحة تلقائياً عند تحميل الصفحة
         const urlParams = new URLSearchParams(window.location.search);
         if((urlParams.has('difficulty') && urlParams.get('difficulty') !== 'all') || (urlParams.has('type') && urlParams.get('type') !== '')) {
@@ -540,42 +806,133 @@
             toggleBtn.classList.toggle('active');
         });
 
-        // تقديم النموذج تلقائياً عند تغيير مستوى الصعوبة
+        // الاستماع لتغيير مستوى الصعوبة
         const diffRadios = document.querySelectorAll('.diff-radio');
         diffRadios.forEach(radio => {
             radio.addEventListener('change', () => {
-                document.getElementById('filterForm').submit();
+                fetchFilteredQuestions();
             });
         });
 
-        const selectAll = document.getElementById('selectAll');
-        const rowCbs = document.querySelectorAll('.row-cb');
-        const bulkToolbar = document.getElementById('bulkToolbar');
-        const countSpan = document.getElementById('selectedCount');
-
-        function updateBulk() {
-            const checkedCount = document.querySelectorAll('.row-cb:checked').length;
-            if(checkedCount > 0) {
-                bulkToolbar.style.display = 'flex';
-                countSpan.textContent = checkedCount;
-            } else {
-                bulkToolbar.style.display = 'none';
-            }
-            if(selectAll) {
-                selectAll.checked = checkedCount === rowCbs.length && rowCbs.length > 0;
-                selectAll.indeterminate = checkedCount > 0 && checkedCount < rowCbs.length;
-            }
+        // محرك البحث الفوري بالـ AJAX
+        if (searchInput) {
+            searchInput.addEventListener('input', debounce(fetchFilteredQuestions, 350));
         }
 
-        if(selectAll) {
-            selectAll.addEventListener('change', function() {
-                rowCbs.forEach(cb => cb.checked = this.checked);
-                updateBulk();
-            });
-        }
-
-        rowCbs.forEach(cb => cb.addEventListener('change', updateBulk));
+        // الاستماع لنقرات ترقيم الصفحات عبر AJAX
+        document.addEventListener('click', function(e) {
+            const pageLink = e.target.closest('.pagination a');
+            const pagContainer = document.getElementById('pagination-container');
+            if (pageLink && pagContainer.contains(e.target)) {
+                e.preventDefault();
+                const url = pageLink.getAttribute('href');
+                
+                const dataGrid = document.getElementById('dataGrid');
+                dataGrid.style.opacity = '0.5';
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(r => r.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newGrid = doc.getElementById('dataGrid');
+                        const newPag = doc.getElementById('pagination-container');
+                        if (newGrid) {
+                            dataGrid.innerHTML = newGrid.innerHTML;
+                        }
+                        if (pagContainer) {
+                            pagContainer.innerHTML = newPag ? newPag.innerHTML : '';
+                        }
+                        initBulkActions();
+                        dataGrid.style.opacity = '1';
+                        window.scrollTo({ top: dataGrid.offsetTop - 100, behavior: 'smooth' });
+                    })
+                    .catch(() => {
+                        dataGrid.style.opacity = '1';
+                    });
+            }
+        });
     });
+
+    window.fetchFilteredQuestions = function() {
+        const dataGrid = document.getElementById('dataGrid');
+        const pagContainer = document.getElementById('pagination-container');
+        const filterForm = document.getElementById('filterForm');
+        const subjectSelect = document.getElementById('subjectSelect');
+        
+        dataGrid.style.opacity = '0.5';
+        
+        const formData = new FormData(filterForm);
+        const queryParams = new URLSearchParams(formData).toString();
+        const url = `{{ route('admin.questions.index') }}?${queryParams}`;
+        
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newGrid = doc.getElementById('dataGrid');
+            const newPag = doc.getElementById('pagination-container');
+            const newSubjectSelect = doc.getElementById('subjectSelect');
+            
+            if (newGrid) {
+                dataGrid.innerHTML = newGrid.innerHTML;
+            }
+            if (pagContainer) {
+                pagContainer.innerHTML = newPag ? newPag.innerHTML : '';
+            }
+            if (subjectSelect && newSubjectSelect) {
+                const currentValue = subjectSelect.value;
+                subjectSelect.innerHTML = newSubjectSelect.innerHTML;
+                if (Array.from(subjectSelect.options).some(opt => opt.value === currentValue)) {
+                    subjectSelect.value = currentValue;
+                } else {
+                    subjectSelect.value = '';
+                }
+            }
+            
+            const newPerPageSelect = doc.getElementById('perPageSelect');
+            const perPageSelect = document.getElementById('perPageSelect');
+            if (perPageSelect && newPerPageSelect) {
+                perPageSelect.value = newPerPageSelect.value;
+            }
+
+            // تحديث بطاقات الفلترة السريعة
+            const newQuickFilters = doc.getElementById('quick-filters-container');
+            const quickFiltersContainer = document.getElementById('quick-filters-container');
+            if (quickFiltersContainer && newQuickFilters) {
+                quickFiltersContainer.innerHTML = newQuickFilters.innerHTML;
+            }
+            
+            initBulkActions();
+            dataGrid.style.opacity = '1';
+        })
+        .catch(error => {
+            console.error('Error fetching questions:', error);
+            dataGrid.style.opacity = '1';
+        });
+    };
+
+    // تطبيق الفلتر السريع عند النقر على البطاقة
+    window.applyQuickFilter = function(cardElement, gradeId, subjectId) {
+        const gradeSelect = document.getElementById('gradeSelect');
+        const subjectSelect = document.getElementById('subjectSelect');
+        
+        if (cardElement.classList.contains('active')) {
+            gradeSelect.value = '';
+            subjectSelect.value = '';
+        } else {
+            gradeSelect.value = gradeId;
+            // حجز الخيار مؤقتاً لتفادي وميض القائمة
+            subjectSelect.innerHTML = `<option value="${subjectId}" selected>جاري التحميل...</option>`;
+            subjectSelect.value = subjectId;
+        }
+        
+        fetchFilteredQuestions();
+    };
 
     // دالة فتح وإغلاق بطاقة السؤال
     window.toggleQCard = function(id) {
@@ -646,19 +1003,45 @@
     }
 
     // منطق الحذف الجماعي الفعلي
-    function confirmBulkDelete() {
+    window.confirmBulkDelete = function() {
         const checkedCbs = document.querySelectorAll('.row-cb:checked');
         const checkedIds = Array.from(checkedCbs).map(cb => cb.value);
         
         if (checkedIds.length === 0) {
-            alert('يرجى تحديد سؤال واحد على الأقل للحذف.');
+            Swal.fire({
+                title: 'تنبيه',
+                text: 'يرجى تحديد سؤال واحد على الأقل للحذف الجماعي.',
+                icon: 'info',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: 'var(--primary)'
+            });
             return;
         }
 
-        if (confirm(`تحذير هام: هل أنت متأكد من حذف الأسئلة الـ ${checkedIds.length} المحددة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`)) {
-            document.getElementById('bulkDeleteIds').value = checkedIds.join(',');
-            document.getElementById('bulkDeleteForm').submit();
-        }
+        Swal.fire({
+            title: 'هل أنت متأكد من الحذف الجماعي؟',
+            text: `تحذير هام: أنت على وشك حذف عدد (${checkedIds.length}) من الأسئلة المحددة نهائياً! لا يمكن التراجع عن هذا الإجراء.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#c30e14',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'نعم، احذف الكل!',
+            cancelButtonText: 'تراجع',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'جاري حذف الأسئلة المحددة...',
+                    html: 'يرجى عدم إغلاق الصفحة حتى انتهاء الحذف الجماعي.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                document.getElementById('bulkDeleteIds').value = checkedIds.join(',');
+                document.getElementById('bulkDeleteForm').submit();
+            }
+        });
     }
 </script>
 @endpush

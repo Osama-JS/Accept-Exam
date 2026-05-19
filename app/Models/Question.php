@@ -11,7 +11,12 @@ class Question extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['subject_id', 'text'];
+    protected $fillable = ['grade_id', 'subject_id', 'text', 'difficulty', 'type'];
+
+    public function grade(): BelongsTo
+    {
+        return $this->belongsTo(Grade::class);
+    }
 
     public function subject(): BelongsTo
     {

@@ -50,15 +50,67 @@ class ExamController extends Controller
             'guardian_phone'     => $data['guardian_phone'],
         ]);
 
-        // توليد الأسئلة العشوائية
+        // توليد الأسئلة العشوائية (سحب ذكي مع التعويض)
         $questions = collect();
         foreach ($exam->subjectConfigs as $config) {
-            $picked = $config->subject->questions()
-                ->inRandomOrder()
-                ->take($config->question_count)
+            $neededTotal = $config->question_count;
+            $diffsRaw = $config->difficulties ?? [];
+            $diffs = [
+                'easy'   => isset($diffsRaw['easy']) && is_array($diffsRaw['easy']) ? (int)($diffsRaw['easy']['count'] ?? 0) : (int)($diffsRaw['easy'] ?? 0),
+                'medium' => isset($diffsRaw['medium']) && is_array($diffsRaw['medium']) ? (int)($diffsRaw['medium']['count'] ?? 0) : (int)($diffsRaw['medium'] ?? 0),
+                'hard'   => isset($diffsRaw['hard']) && is_array($diffsRaw['hard']) ? (int)($diffsRaw['hard']['count'] ?? 0) : (int)($diffsRaw['hard'] ?? 0),
+            ];
+            $types = $config->types ?? ['mcq' => 0, 'tf' => 0, 'matching' => 0, 'essay' => 0];
+
+            $subjectQuestions = \App\Models\Question::where('subject_id', $config->subject_id)
+                ->where('grade_id', $exam->grade_id)
                 ->with('choices')
+                ->inRandomOrder()
                 ->get();
-            $questions = $questions->merge($picked);
+
+            $pickedForConfig = collect();
+            $neededDiffs = $diffs;
+            $neededTypes = $types;
+            $rem = $subjectQuestions;
+
+            // المحاولة 1: تطابق تام للصعوبة والنوع
+            foreach ($rem as $k => $q) {
+                if ($pickedForConfig->count() >= $neededTotal) break;
+                if (($neededDiffs[$q->difficulty] ?? 0) > 0 && ($neededTypes[$q->type] ?? 0) > 0) {
+                    $pickedForConfig->push($q);
+                    $neededDiffs[$q->difficulty]--;
+                    $neededTypes[$q->type]--;
+                    $rem->forget($k);
+                }
+            }
+
+            // المحاولة 2: تطابق النوع فقط
+            foreach ($rem as $k => $q) {
+                if ($pickedForConfig->count() >= $neededTotal) break;
+                if (($neededTypes[$q->type] ?? 0) > 0) {
+                    $pickedForConfig->push($q);
+                    $neededTypes[$q->type]--;
+                    $rem->forget($k);
+                }
+            }
+
+            // المحاولة 3: تطابق الصعوبة فقط
+            foreach ($rem as $k => $q) {
+                if ($pickedForConfig->count() >= $neededTotal) break;
+                if (($neededDiffs[$q->difficulty] ?? 0) > 0) {
+                    $pickedForConfig->push($q);
+                    $neededDiffs[$q->difficulty]--;
+                    $rem->forget($k);
+                }
+            }
+
+            // المحاولة 4: إكمال النقص (التعويض) عشوائياً
+            foreach ($rem as $k => $q) {
+                if ($pickedForConfig->count() >= $neededTotal) break;
+                $pickedForConfig->push($q);
+            }
+
+            $questions = $questions->merge($pickedForConfig);
         }
         $questions = $questions->shuffle();
 
@@ -100,12 +152,12 @@ class ExamController extends Controller
             return redirect()->route('home')->with('error', 'انتهت جلسة الاختبار.');
         }
 
-        $exam    = Exam::findOrFail($session['exam_id']);
+        $exam    = Exam::with('subjectConfigs')->findOrFail($session['exam_id']);
         $student = Student::findOrFail($session['student_id']);
         $qIds    = $session['question_ids'];
 
         $totalQuestions  = count($qIds);
-        $markPerQuestion = $totalQuestions > 0 ? $exam->total_marks / $totalQuestions : 0;
+        $configsMap = $exam->subjectConfigs->keyBy('subject_id');
 
         // إنشاء سجل الاختبار
         $token       = Str::uuid()->toString();
@@ -126,15 +178,83 @@ class ExamController extends Controller
         $totalScore   = 0;
 
         foreach ($qIds as $qId) {
-            $chosenId  = $request->input("answers.{$qId}");
-            $isCorrect = false;
+            $questionObj = \App\Models\Question::with('choices')->findOrFail($qId);
+            $qType       = $questionObj->type;
+            
+            // استخراج درجة السؤال من الإعدادات الخاصة بمادته (دعم الدرجة الموحدة أو الدرجات الموزعة حسب الصعوبة)
+            $config = $configsMap[$questionObj->subject_id] ?? null;
+            $markPerQuestion = 1;
+            if ($config) {
+                $diffs = $config->difficulties ?? [];
+                $qDiff = $questionObj->difficulty; // 'easy', 'medium', 'hard'
+                if (isset($diffs[$qDiff]) && is_array($diffs[$qDiff]) && isset($diffs[$qDiff]['marks'])) {
+                    $markPerQuestion = (int)$diffs[$qDiff]['marks'];
+                } else {
+                    $markPerQuestion = (int)$config->marks_per_question;
+                }
+            }
+            
+            $isCorrect  = false;
+            $chosenId   = null;
+            $answerText = null;
 
-            if ($chosenId) {
-                $choice    = \App\Models\Choice::where('id', $chosenId)
-                    ->where('question_id', $qId)
-                    ->where('is_correct', true)
-                    ->exists();
-                $isCorrect = $choice;
+            if ($qType === 'essay') {
+                $essayInput = $request->input("answers.{$qId}");
+                $answerText = $essayInput;
+                
+                $modelChoice = $questionObj->choices->first();
+                $modelAnswer = $modelChoice ? $modelChoice->text : '';
+                
+                if (!empty($essayInput) && !empty($modelAnswer)) {
+                    $cleanInput = preg_replace('/[^\p{L}\p{N}\s]/u', '', mb_strtolower($essayInput));
+                    $cleanModel = preg_replace('/[^\p{L}\p{N}\s]/u', '', mb_strtolower($modelAnswer));
+                    
+                    $inputWords = array_filter(explode(' ', $cleanInput));
+                    $modelWords = array_filter(explode(' ', $cleanModel));
+                    
+                    $intersection = array_intersect($inputWords, $modelWords);
+                    
+                    if (count($modelWords) > 0) {
+                        $matchRatio = count($intersection) / count($modelWords);
+                        if ($matchRatio >= 0.4) {
+                            $isCorrect = true;
+                        }
+                    }
+                }
+            } elseif ($qType === 'matching') {
+                $matchingAnswers = $request->input("answers.{$qId}", []);
+                $answerText      = json_encode($matchingAnswers, JSON_UNESCAPED_UNICODE);
+                
+                if (is_array($matchingAnswers) && count($matchingAnswers) > 0) {
+                    $perfectMatch = true;
+                    $matchedCount = 0;
+                    
+                    foreach ($questionObj->choices as $choice) {
+                        $parts    = explode('|', $choice->text);
+                        $leftText = trim($parts[1] ?? '');
+                        
+                        $studentSelectedLeft = trim($matchingAnswers[$choice->id] ?? '');
+                        
+                        if ($studentSelectedLeft === $leftText) {
+                            $matchedCount++;
+                        } else {
+                            $perfectMatch = false;
+                        }
+                    }
+                    
+                    if ($perfectMatch && $matchedCount === count($questionObj->choices)) {
+                        $isCorrect = true;
+                    }
+                }
+            } else {
+                $chosenId = $request->input("answers.{$qId}");
+                if ($chosenId) {
+                    $choice = \App\Models\Choice::where('id', $chosenId)
+                        ->where('question_id', $qId)
+                        ->where('is_correct', true)
+                        ->exists();
+                    $isCorrect = $choice;
+                }
             }
 
             if ($isCorrect) {
@@ -146,6 +266,7 @@ class ExamController extends Controller
                 'student_exam_id'  => $studentExam->id,
                 'question_id'      => $qId,
                 'chosen_choice_id' => $chosenId ?: null,
+                'answer_text'      => $answerText,
                 'is_correct'       => $isCorrect,
             ]);
         }

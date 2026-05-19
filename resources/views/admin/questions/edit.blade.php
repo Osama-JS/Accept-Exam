@@ -131,10 +131,10 @@
                     
                     <div class="ws-group">
                         <label class="ws-label">الصف الدراسي <span class="text-danger">*</span></label>
-                        <select id="grade-select" class="ws-select" onchange="loadSubjects(this.value)" required>
+                        <select name="grade_id" id="grade-select" class="ws-select" onchange="loadSubjects(this.value)" required>
                             <option value="">-- اختر الصف --</option>
                             @foreach($grades as $g)
-                                <option value="{{ $g->id }}" {{ $question->subject->grade_id == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
+                                <option value="{{ $g->id }}" {{ $question->grade_id == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -156,6 +156,8 @@
                         <select name="type" class="ws-select">
                             <option value="mcq" {{ $question->type == 'mcq' ? 'selected' : '' }}>اختيار من متعدد</option>
                             <option value="tf" {{ $question->type == 'tf' ? 'selected' : '' }}>صح أو خطأ</option>
+                            <option value="matching" {{ $question->type == 'matching' ? 'selected' : '' }}>سؤال توصيل</option>
+                            <option value="essay" {{ $question->type == 'essay' ? 'selected' : '' }}>سؤال مقالي</option>
                         </select>
                     </div>
 
@@ -261,76 +263,178 @@
         if (oldChoices.length > 0) {
             oldChoices.forEach((ch, i) => createOptionRow(i, ch.text, i === oldCorrect));
         } else {
-            for(let i=0; i<4; i++) { createOptionRow(i, '', i === 0); }
+            const typeSelect = document.querySelector('select[name="type"]');
+            const type = typeSelect ? typeSelect.value : 'mcq';
+            const count = type === 'tf' ? 2 : (type === 'essay' ? 1 : (type === 'matching' ? 3 : 4));
+            for(let i=0; i<count; i++) { createOptionRow(i, '', i === 0); }
         }
         reindexOptions();
+        applyTypeRules();
+    }
+
+    window.updateMatchingValue = function(element, index) {
+        const row = element.closest('.option-row');
+        if (!row) return;
+        const rightInput = row.querySelector('.matching-right');
+        const leftInput = row.querySelector('.matching-left');
+        const realInput = row.querySelector('.real-choice-input');
+        if (rightInput && leftInput && realInput) {
+            realInput.value = rightInput.value + '|' + leftInput.value;
+        }
     }
 
     function createOptionRow(index, text = '', isCorrect = false) {
         const row = document.createElement('div');
         row.className = `option-row ${isCorrect ? 'is-correct' : ''}`;
         
-        row.innerHTML = `
-            <div class="check-btn" title="تحديد كإجابة صحيحة">
-                <i class="bi bi-check-lg"></i>
-            </div>
-            <div class="option-input-wrapper">
-                <span class="option-letter">-</span>
-                <input type="text" class="option-input" name="choices[${index}][text]" value="${text}" placeholder="اكتب الخيار..." required autocomplete="off">
-            </div>
-            <button type="button" class="delete-btn" title="حذف هذا الخيار">
-                <i class="bi bi-trash3"></i>
-            </button>
-        `;
+        const typeSelect = document.querySelector('select[name="type"]');
+        const isMatching = typeSelect && typeSelect.value === 'matching';
+        const isEssay = typeSelect && typeSelect.value === 'essay';
+        
+        if (isMatching) {
+            let rightText = '';
+            let leftText = '';
+            if (text && text.includes('|')) {
+                const parts = text.split('|');
+                rightText = parts[0];
+                leftText = parts[1];
+            } else {
+                rightText = text;
+            }
+            
+            row.innerHTML = `
+                <div class="check-btn" style="display: none;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="option-input-wrapper" style="display: flex; gap: 12px; width: 100%; border: none; background: transparent; padding: 0; align-items: center;">
+                    <span class="option-letter" style="flex-shrink: 0; min-width: 24px;">-</span>
+                    <input type="text" class="option-input matching-right" value="${rightText}" placeholder="اليمين (مثال: عطارد)" required style="flex: 1;" oninput="updateMatchingValue(this, ${index})">
+                    <div style="display: flex; align-items: center; color: var(--primary); font-weight: 800;"><i class="bi bi-arrow-left-right"></i></div>
+                    <input type="text" class="option-input matching-left" value="${leftText}" placeholder="اليسار (مثال: الكوكب الأقرب للشمس)" required style="flex: 1;" oninput="updateMatchingValue(this, ${index})">
+                    <input type="hidden" class="option-input real-choice-input" name="choices[${index}][text]" value="${text}">
+                </div>
+                <button type="button" class="delete-btn" title="حذف هذا الخيار">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            `;
+        } else if (isEssay) {
+            row.innerHTML = `
+                <div class="check-btn" style="display: none;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="option-input-wrapper">
+                    <span class="option-letter"><i class="bi bi-blockquote-left" style="color: var(--primary);"></i></span>
+                    <input type="text" class="option-input" name="choices[${index}][text]" value="${text}" placeholder="اكتب الجواب النموذجي (أو الكلمات المفتاحية المعتمدة)..." required autocomplete="off">
+                </div>
+                <button type="button" class="delete-btn" style="display: none;">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            `;
+        } else {
+            row.innerHTML = `
+                <div class="check-btn" title="تحديد كإجابة صحيحة">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <div class="option-input-wrapper">
+                    <span class="option-letter">-</span>
+                    <input type="text" class="option-input" name="choices[${index}][text]" value="${text}" placeholder="اكتب الخيار..." required autocomplete="off">
+                </div>
+                <button type="button" class="delete-btn" title="حذف هذا الخيار">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            `;
+        }
         optionsList.appendChild(row);
     }
 
     window.addOption = function() {
-        if (optionsList.children.length >= 8) { alert('الحد الأقصى للخيارات هو 8.'); return; }
+        if (optionsList.children.length >= 8) {
+            Swal.fire({
+                title: 'تنبيه',
+                text: 'الحد الأقصى للخيارات هو 8 خيارات فقط.',
+                icon: 'warning',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: 'var(--primary)'
+            });
+            return;
+        }
         createOptionRow(optionsList.children.length);
         reindexOptions();
+        applyTypeRules();
         
         // التركيز على الحقل المضاف
         const inputs = optionsList.querySelectorAll('.option-input');
-        inputs[inputs.length - 1].focus();
+        if(inputs.length > 0) inputs[inputs.length - 1].focus();
     }
 
     function reindexOptions() {
         const rows = optionsList.querySelectorAll('.option-row');
+        const typeSelect = document.querySelector('select[name="type"]');
+        const isMatching = typeSelect && typeSelect.value === 'matching';
+        const isEssay = typeSelect && typeSelect.value === 'essay';
         
         rows.forEach((row, index) => {
-            // تحديث الحروف
-            row.querySelector('.option-letter').textContent = letters[index] + '.';
-            // تحديث اسم الـ input
-            row.querySelector('.option-input').name = `choices[${index}][text]`;
-            row.querySelector('.option-input').placeholder = `الخيار ${letters[index]}...`;
+            const letterSpan = row.querySelector('.option-letter');
+            if (letterSpan && !isEssay) {
+                letterSpan.textContent = letters[index] + '.';
+            }
             
-            // تفعيل زر التحديد الصحيح
-            const checkBtn = row.querySelector('.check-btn');
-            checkBtn.onclick = function() {
-                rows.forEach(r => r.classList.remove('is-correct'));
-                row.classList.add('is-correct');
-                correctInput.value = index;
-            };
-
-            // تفعيل زر الحذف
-            const delBtn = row.querySelector('.delete-btn');
-            delBtn.onclick = function() {
-                if (optionsList.children.length <= 2) { alert('يجب توفر خيارين على الأقل.'); return; }
-                
-                // نقل التحديد إذا حذفنا الإجابة الصحيحة
-                if (row.classList.contains('is-correct')) {
-                    const nextOrPrev = row.nextElementSibling || row.previousElementSibling;
-                    if(nextOrPrev) { nextOrPrev.classList.add('is-correct'); }
+            if (isMatching) {
+                const realInput = row.querySelector('.real-choice-input');
+                if (realInput) {
+                    realInput.name = `choices[${index}][text]`;
                 }
-                
-                row.remove();
-                reindexOptions(); // إعادة الفهرسة لاستخراج الـ correct_choice الجديد
-                
-                // تحديث الـ Input المخفي بعد الحذف وإعادة الترتيب
-                const currentCorrectRow = Array.from(optionsList.children).findIndex(r => r.classList.contains('is-correct'));
-                correctInput.value = currentCorrectRow >= 0 ? currentCorrectRow : 0;
-            };
+                const rInput = row.querySelector('.matching-right');
+                if (rInput) rInput.oninput = function() { updateMatchingValue(this, index); };
+                const lInput = row.querySelector('.matching-left');
+                if (lInput) lInput.oninput = function() { updateMatchingValue(this, index); };
+            } else {
+                const normalInput = row.querySelector('.option-input');
+                if (normalInput) {
+                    normalInput.name = `choices[${index}][text]`;
+                    if (!isEssay) {
+                        normalInput.placeholder = `الخيار ${letters[index]}...`;
+                    }
+                }
+            }
+            
+            const checkBtn = row.querySelector('.check-btn');
+            if (checkBtn) {
+                checkBtn.onclick = function() {
+                    rows.forEach(r => r.classList.remove('is-correct'));
+                    row.classList.add('is-correct');
+                    correctInput.value = index;
+                };
+            }
+
+            const delBtn = row.querySelector('.delete-btn');
+            if (delBtn) {
+                delBtn.onclick = function() {
+                    const minRows = isMatching ? 3 : 2;
+                    if (optionsList.children.length <= minRows) {
+                        Swal.fire({
+                            title: 'تنبيه',
+                            text: `يجب توفر ${minRows} خيارات على الأقل لهذا النوع من الأسئلة.`,
+                            icon: 'warning',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: 'var(--primary)'
+                        });
+                        return;
+                    }
+                    
+                    if (row.classList.contains('is-correct')) {
+                        const nextOrPrev = row.nextElementSibling || row.previousElementSibling;
+                        if(nextOrPrev) { nextOrPrev.classList.add('is-correct'); }
+                    }
+                    
+                    row.remove();
+                    reindexOptions();
+                    applyTypeRules();
+                    
+                    const currentCorrectRow = Array.from(optionsList.children).findIndex(r => r.classList.contains('is-correct'));
+                    correctInput.value = currentCorrectRow >= 0 ? currentCorrectRow : 0;
+                };
+            }
         });
     }
 
@@ -350,7 +454,6 @@
             .then(subjects => {
                 sel.innerHTML = '<option value="">-- اختر المادة --</option>';
                 subjects.forEach(s => {
-                    // إذا كان للمادة قيمة سابقة أو هي المادة الحالية للسؤال
                     const currentSubjectId = "{{ $question->subject_id }}";
                     const selected = s.id == currentSubjectId ? 'selected' : '';
                     sel.innerHTML += `<option value="${s.id}" ${selected}>${s.name}</option>`;
@@ -359,8 +462,64 @@
             .catch(() => sel.innerHTML = '<option value="">خطأ في التحميل</option>');
     }
 
+    function applyTypeRules() {
+        const typeSelect = document.querySelector('select[name="type"]');
+        if (!typeSelect) return;
+        const type = typeSelect.value;
+        const addBtn = document.querySelector('.add-option-btn');
+        
+        if (type === 'tf') {
+            if (addBtn) addBtn.style.display = 'none';
+            const inputs = optionsList.querySelectorAll('.option-input');
+            if (inputs[0]) { inputs[0].readOnly = true; inputs[0].placeholder = 'صح'; }
+            if (inputs[1]) { inputs[1].readOnly = true; inputs[1].placeholder = 'خطأ'; }
+            const delBtns = optionsList.querySelectorAll('.delete-btn');
+            delBtns.forEach(btn => btn.style.display = 'none');
+        } else if (type === 'essay') {
+            if (addBtn) addBtn.style.display = 'none';
+            const delBtns = optionsList.querySelectorAll('.delete-btn');
+            delBtns.forEach(btn => btn.style.display = 'none');
+        } else {
+            if (addBtn) addBtn.style.display = 'inline-flex';
+            const delBtns = optionsList.querySelectorAll('.delete-btn');
+            delBtns.forEach(btn => btn.style.display = 'flex');
+        }
+    }
+
+    // دالة التعامل مع تغيير نوع السؤال
+    function handleTypeChange() {
+        const typeSelect = document.querySelector('select[name="type"]');
+        if (!typeSelect) return;
+        
+        const type = typeSelect.value;
+        optionsList.innerHTML = '';
+        
+        if (type === 'tf') {
+            createOptionRow(0, 'صح', true);
+            createOptionRow(1, 'خطأ', false);
+        } else if (type === 'essay') {
+            createOptionRow(0, '', true);
+        } else if (type === 'matching') {
+            for(let i=0; i<3; i++) {
+                createOptionRow(i, '', i === 0);
+            }
+        } else {
+            for(let i=0; i<4; i++) {
+                createOptionRow(i, '', i === 0);
+            }
+        }
+        reindexOptions();
+        applyTypeRules();
+        correctInput.value = 0;
+    }
+
     // التهيئة
     initOptions();
+    
+    const typeSelect = document.querySelector('select[name="type"]');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', handleTypeChange);
+    }
     
 </script>
 @endpush

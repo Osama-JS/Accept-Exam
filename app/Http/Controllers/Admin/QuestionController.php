@@ -13,9 +13,8 @@ class QuestionController extends Controller
     public function index(Request $request)
     {
         $grades   = Grade::ordered()->get();
-        $subjects = collect();
         
-        $query = Question::with(['subject.grade', 'choices']);
+        $query = Question::with(['subject', 'grade', 'choices']);
 
         if ($request->filled('search')) {
             $query->where('text', 'like', '%' . $request->search . '%');
@@ -26,8 +25,15 @@ class QuestionController extends Controller
         }
 
         if ($request->filled('grade_id')) {
-            $query->whereHas('subject', fn($s) => $s->where('grade_id', $request->grade_id));
-            $subjects = Subject::where('grade_id', $request->grade_id)->get();
+            $query->where('grade_id', $request->grade_id);
+            $grade = Grade::find($request->grade_id);
+            if ($grade) {
+                $subjects = $grade->subjects;
+            } else {
+                $subjects = collect();
+            }
+        } else {
+            $subjects = Subject::orderBy('name')->get();
         }
 
         if ($request->filled('difficulty') && $request->difficulty !== 'all') {
@@ -38,10 +44,36 @@ class QuestionController extends Controller
             $query->where('type', $request->type);
         }
 
-        $questions = $query->latest()->paginate(15)->withQueryString();
+        $perPage = $request->integer('per_page', 15);
+        if (!in_array($perPage, [10, 15, 25, 50, 100])) {
+            $perPage = 15;
+        }
+
+        $questions = $query->latest()->paginate($perPage)->withQueryString();
         $totalCount = Question::count();
 
-        return view('admin.questions.index', compact('questions', 'grades', 'subjects', 'totalCount'));
+        // جلب الفلاتر السريعة (جميع الصفوف والمواد المرتبطة وبها أسئلة)
+        $quickFilters = [];
+        $gradesWithSubjects = Grade::with('subjects')->ordered()->get();
+        foreach ($gradesWithSubjects as $grade) {
+            foreach ($grade->subjects as $subject) {
+                $qCount = Question::where('grade_id', $grade->id)
+                    ->where('subject_id', $subject->id)
+                    ->count();
+                
+                if ($qCount > 0) {
+                    $quickFilters[] = [
+                        'grade_id' => $grade->id,
+                        'grade_name' => $grade->name,
+                        'subject_id' => $subject->id,
+                        'subject_name' => $subject->name,
+                        'count' => $qCount
+                    ];
+                }
+            }
+        }
+
+        return view('admin.questions.index', compact('questions', 'grades', 'subjects', 'totalCount', 'quickFilters'));
     }
 
     public function create()
@@ -53,28 +85,43 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'grade_id'                => 'required|exists:grades,id',
             'subject_id'              => 'required|exists:subjects,id',
             'text'                    => 'required|string',
-            'choices'                 => 'required|array|min:2',
+            'type'                    => 'required|string|in:mcq,tf,essay,matching',
+            'difficulty'              => 'required|string|in:easy,medium,hard',
+            'choices'                 => 'required|array',
             'choices.*.text'          => 'required|string|max:500',
-            'choices.*.is_correct'    => 'nullable|boolean',
-            'correct_choice'          => 'required|integer',
+            'correct_choice'          => 'required_unless:type,matching|integer',
         ], [
+            'grade_id.required'    => 'الصف الدراسي مطلوب.',
             'subject_id.required'  => 'المادة الدراسية مطلوبة.',
             'text.required'        => 'نص السؤال مطلوب.',
-            'choices.min'          => 'يجب إضافة خيارين على الأقل.',
-            'correct_choice.required' => 'يجب تحديد الإجابة الصحيحة.',
         ]);
 
+        if ($request->type === 'essay' && count($request->choices) < 1) {
+            return back()->withErrors(['choices' => 'يجب إدخال الجواب النموذجي للسؤال المقالي.'])->withInput();
+        }
+        if ($request->type !== 'essay' && count($request->choices) < 2) {
+            return back()->withErrors(['choices' => 'يجب إضافة خيارين على الأقل.'])->withInput();
+        }
+
         $question = Question::create([
+            'grade_id'   => $data['grade_id'],
             'subject_id' => $data['subject_id'],
             'text'       => $data['text'],
+            'type'       => $data['type'],
+            'difficulty' => $data['difficulty'],
         ]);
 
         foreach ($request->choices as $index => $choice) {
+            $isCorrect = ($request->type === 'matching' || $request->type === 'essay') 
+                ? true 
+                : ($index == $request->correct_choice);
+
             $question->choices()->create([
                 'text'       => $choice['text'],
-                'is_correct' => ($index == $request->correct_choice),
+                'is_correct' => $isCorrect,
                 'order'      => $index,
             ]);
         }
@@ -86,27 +133,47 @@ class QuestionController extends Controller
     {
         $question->load('choices');
         $grades = Grade::ordered()->get();
-        $subjects = Subject::where('grade_id', $question->subject->grade_id)->get();
+        $subjects = $question->grade ? $question->grade->subjects : collect();
         return view('admin.questions.edit', compact('question', 'grades', 'subjects'));
     }
 
     public function update(Request $request, Question $question)
     {
         $data = $request->validate([
+            'grade_id'       => 'required|exists:grades,id',
             'subject_id'     => 'required|exists:subjects,id',
             'text'           => 'required|string',
-            'choices'        => 'required|array|min:2',
+            'type'           => 'required|string|in:mcq,tf,essay,matching',
+            'difficulty'     => 'required|string|in:easy,medium,hard',
+            'choices'        => 'required|array',
             'choices.*.text' => 'required|string|max:500',
-            'correct_choice' => 'required|integer',
+            'correct_choice' => 'required_unless:type,matching|integer',
         ]);
 
-        $question->update(['subject_id' => $data['subject_id'], 'text' => $data['text']]);
+        if ($request->type === 'essay' && count($request->choices) < 1) {
+            return back()->withErrors(['choices' => 'يجب إدخال الجواب النموذجي للسؤال المقالي.'])->withInput();
+        }
+        if ($request->type !== 'essay' && count($request->choices) < 2) {
+            return back()->withErrors(['choices' => 'يجب إضافة خيارين على الأقل.'])->withInput();
+        }
+
+        $question->update([
+            'grade_id'   => $data['grade_id'],
+            'subject_id' => $data['subject_id'],
+            'text'       => $data['text'],
+            'type'       => $data['type'],
+            'difficulty' => $data['difficulty'],
+        ]);
         $question->choices()->delete();
 
         foreach ($request->choices as $index => $choice) {
+            $isCorrect = ($request->type === 'matching' || $request->type === 'essay') 
+                ? true 
+                : ($index == $request->correct_choice);
+
             $question->choices()->create([
                 'text'       => $choice['text'],
-                'is_correct' => ($index == $request->correct_choice),
+                'is_correct' => $isCorrect,
                 'order'      => $index,
             ]);
         }

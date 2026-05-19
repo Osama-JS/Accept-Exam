@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Grade;
+use App\Models\Subject;
+use App\Models\Question;
 use Illuminate\Http\Request;
 
 class GradeController extends Controller
@@ -109,5 +111,54 @@ class GradeController extends Controller
         $grade->delete();
         return redirect()->route('admin.grades.index')
             ->with('success', 'تم حذف الصف الدراسي بنجاح.');
+    }
+
+    public function getSubjects(Grade $grade)
+    {
+        // Fetch all subjects ordered by name
+        $subjects = Subject::orderBy('name')->get();
+        
+        // Pluck already associated subject ids
+        $associatedSubjectIds = $grade->subjects->pluck('id')->toArray();
+        
+        // Map to include flag and accurate double-constraint question count
+        $mappedSubjects = $subjects->map(function ($subject) use ($grade, $associatedSubjectIds) {
+            $questionsCount = Question::where('grade_id', $grade->id)
+                ->where('subject_id', $subject->id)
+                ->count();
+                
+            return [
+                'id' => $subject->id,
+                'name' => $subject->name,
+                'is_associated' => in_array($subject->id, $associatedSubjectIds),
+                'questions_count' => $questionsCount,
+            ];
+        });
+        
+        return response()->json([
+            'grade' => [
+                'id' => $grade->id,
+                'name' => $grade->name,
+            ],
+            'subjects' => $mappedSubjects,
+        ]);
+    }
+
+    public function syncSubjects(Request $request, Grade $grade)
+    {
+        $request->validate([
+            'subject_ids' => 'nullable|array',
+            'subject_ids.*' => 'exists:subjects,id',
+        ]);
+        
+        $subjectIds = $request->input('subject_ids', []);
+        
+        // Sync relationships via pivot table
+        $grade->subjects()->sync($subjectIds);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'تم مزامنة وتحديث ربط المواد الدراسية بالصف الدراسي بنجاح.',
+        ]);
     }
 }
