@@ -30,6 +30,14 @@ class QuestionController extends Controller
             $subjects = Subject::where('grade_id', $request->grade_id)->get();
         }
 
+        if ($request->filled('difficulty') && $request->difficulty !== 'all') {
+            $query->where('difficulty', $request->difficulty);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
         $questions = $query->latest()->paginate(15)->withQueryString();
         $totalCount = Question::count();
 
@@ -110,6 +118,17 @@ class QuestionController extends Controller
     {
         $question->delete();
         return redirect()->route('admin.questions.index')->with('success', 'تم حذف السؤال بنجاح.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = explode(',', $request->input('ids', ''));
+        $validIds = array_filter($ids, 'is_numeric');
+        if (!empty($validIds)) {
+            Question::whereIn('id', $validIds)->delete();
+            return redirect()->route('admin.questions.index')->with('success', 'تم حذف الأسئلة المحددة بنجاح.');
+        }
+        return redirect()->route('admin.questions.index')->with('error', 'يرجى تحديد أسئلة للحذف.');
     }
 
     public function bySubject(Subject $subject)

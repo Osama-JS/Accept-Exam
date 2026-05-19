@@ -1,163 +1,229 @@
 @extends('layouts.student')
-@section('title', 'جلسة الاختبار')
+@section('title', 'جلسة الاختبار الآمنة')
 
 @push('styles')
 <style>
-.exam-header {
-    background: linear-gradient(135deg, #0c1222 0%, #1a1040 60%, #0e1528 100%);
-    color: #fff;
-    padding: 22px 32px;
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
-    position: sticky; top: 68px; z-index: 100;
-    box-shadow: 0 8px 24px rgba(0,0,0,.2);
-}
-.exam-title { font-size: 16px; font-weight: 700; }
-.exam-progress-info { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 4px; }
-.progress-bar-wrap { flex: 1; max-width: 300px; }
-.progress-bar { height: 8px; background: rgba(255,255,255,.2); border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; transition: width .4s cubic-bezier(.4,0,.2,1); }
+    /* ── شريط التقدم الزجاجي الفاخر (Glassmorphic Sticky Header) ── */
+    .exam-header {
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        color: #0f172a; padding: 20px 32px;
+        display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        position: sticky; top: 80px; z-index: 100;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border-bottom: 1.5px solid rgba(226, 232, 240, 0.8);
+    }
+    
+    .exam-title { font-size: 17px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .exam-title i { color: var(--primary); font-size: 20px; animation: pulseIcon 2s infinite; }
+    @keyframes pulseIcon {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+    
+    .exam-progress-info {
+        font-size: 13px; font-weight: 800; color: #64748b; margin-top: 4px;
+        display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    
+    .progress-badge {
+        background: #f1f5f9; padding: 3px 12px; border-radius: 20px; width: fit-content;
+    }
+    
+    .timer-badge {
+        background: rgba(118, 181, 27, 0.1); color: var(--primary-dark);
+        padding: 3px 12px; border-radius: 20px; font-family: 'Inter', sans-serif !important;
+        display: inline-flex; align-items: center; gap: 5px; font-weight: 850;
+        box-shadow: 0 2px 8px rgba(118,181,27,0.05);
+        animation: pulseTimer 1s infinite alternate;
+    }
+    @keyframes pulseTimer {
+        0% { opacity: 0.9; }
+        100% { opacity: 1; }
+    }
 
-.exam-body { max-width: 820px; margin: 40px auto; padding: 0 24px; min-height: 60vh; }
+    .progress-bar-wrap { flex: 1; max-width: 320px; display: flex; align-items: center; gap: 12px; }
+    .progress-bar { height: 8px; background: #e2e8f0; border-radius: 10px; overflow: hidden; flex: 1; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: 10px; transition: width .4s cubic-bezier(.4,0,.2,1); }
 
-.question-wizard {
-    display: none;
-    animation: fadeIn 0.4s ease-out;
-}
-.question-wizard.active {
-    display: block;
-}
+    /* ── جسم منطقة الاختبار (Exam Container) ── */
+    .exam-body { max-width: 860px; margin: 40px auto 100px; padding: 0 24px; min-height: 60vh; }
+    
+    /* شبكة خريطة الأسئلة المتميزة */
+    .steps-map-wrapper {
+        background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px;
+        margin-bottom: 30px; box-shadow: var(--shadow-sm);
+    }
+    .sm-header { font-size: 13.5px; font-weight: 850; color: #64748b; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .steps-map { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    
+    .step-num-btn {
+        width: 40px; height: 40px; border-radius: 12px; 
+        background: #f8fafc; border: 1.5px solid #e2e8f0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; font-weight: 800; color: #64748b;
+        cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Inter', sans-serif !important;
+    }
+    .step-num-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    
+    /* 🟢 تمت الإجابة عليها سابقاً */
+    .step-num-btn.answered { background: #ecfdf5; color: #10b981; border-color: #a7f3d0; }
+    
+    /* 🔴 نشطة حالياً ولم تجب بعد */
+    .step-num-btn.active {
+        background: linear-gradient(135deg, var(--danger) 0%, #ef4444 100%);
+        color: #fff; border-color: transparent; transform: scale(1.1);
+        box-shadow: 0 8px 16px rgba(195,14,20,.25); z-index: 10;
+    }
+    
+    /* 🟢 نشطة حالياً وتمت الإجابة عليها */
+    .step-num-btn.answered.active {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: #fff; border-color: transparent;
+        box-shadow: 0 8px 16px rgba(118,181,27,.3);
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    /* ── معالج الأسئلة (Question Wizard) ── */
+    .question-wizard {
+        display: none; animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .question-wizard.active { display: block; }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-.question-card {
-    background: #fff; border-radius: 20px; border: 1.5px solid var(--border);
-    padding: 40px; margin-bottom: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.04);
-}
-.question-num { 
-    font-size: 14px; font-weight: 800; color: var(--primary); 
-    margin-bottom: 16px; display: inline-block;
-    padding: 4px 12px; background: rgba(37,99,235,0.1); border-radius: 30px;
-}
-.question-text { font-size: 18px; font-weight: 700; margin-bottom: 30px; line-height: 1.7; color: var(--text-main); }
+    .question-card {
+        background: #fff; border-radius: 24px; border: 1.5px solid #e2e8f0;
+        padding: 40px; margin-bottom: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.02);
+        position: relative;
+    }
+    
+    .question-num { 
+        font-size: 13px; font-weight: 850; color: var(--primary); 
+        margin-bottom: 20px; display: inline-block;
+        padding: 5px 16px; background: var(--primary-light); border-radius: 30px;
+    }
+    
+    .question-text { font-size: 19px; font-weight: 850; margin-bottom: 32px; line-height: 1.7; color: #0f172a; }
+    
+    /* خيارات الإجابة الراقية */
+    .choices-grid { display: flex; flex-direction: column; gap: 14px; }
+    
+    .choice-label {
+        display: flex; align-items: center; gap: 18px;
+        padding: 18px 24px; border: 2px solid #e2e8f0;
+        border-radius: 16px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 15.5px; font-weight: 700; color: #334155;
+        position: relative; user-select: none;
+    }
+    .choice-label:hover { border-color: var(--primary); background: #f8fafc; color: #0f172a; }
+    .choice-label input[type=radio] { position: absolute; opacity: 0; }
+    
+    /* الحالة عند تحديد الخيار */
+    .choice-label.selected { 
+        border-color: var(--primary); background: rgba(118, 181, 27, 0.05); 
+        color: var(--primary-dark); box-shadow: 0 6px 16px rgba(118, 181, 27, 0.08);
+    }
+    
+    .choice-letter { 
+        width: 36px; height: 36px; background: #f1f5f9; 
+        border-radius: 10px; display: flex; align-items: center; 
+        justify-content: center; font-size: 14.5px; font-weight: 900; 
+        color: #64748b; flex-shrink: 0; transition: all 0.2s;
+    }
+    .choice-label.selected .choice-letter {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: #fff;
+    }
 
-.choices-grid { display: flex; flex-direction: column; gap: 12px; }
-.choice-label {
-    display: flex; align-items: center; gap: 16px;
-    padding: 16px 20px; border: 2px solid var(--border);
-    border-radius: 12px; cursor: pointer; transition: all .2s;
-    font-size: 15px; font-weight: 600;
-    position: relative;
-}
-.choice-label:hover { border-color: var(--primary); background: rgba(37,99,235,.02); }
-.choice-label input[type=radio] { 
-    position: absolute; opacity: 0; 
-}
-.choice-label.selected { 
-    border-color: #4f46e5; background: rgba(79,70,229,.04); 
-    color: #4f46e5; box-shadow: 0 4px 16px rgba(79,70,229,.1);
-}
-.choice-letter { 
-    width: 32px; height: 32px; background: var(--body-bg); 
-    border-radius: 8px; display: flex; align-items: center; 
-    justify-content: center; font-size: 14px; font-weight: 800; 
-    color: var(--text-muted); flex-shrink: 0; 
-}
-.choice-label.selected .choice-letter { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
+    /* ── أزرار التنقل بين الأسئلة ── */
+    .wizard-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; gap: 16px; }
+    
+    .btn-nav {
+        padding: 12px 32px; border-radius: 14px; font-weight: 800;
+        font-family: 'Cairo', sans-serif; cursor: pointer; border: none;
+        display: flex; align-items: center; gap: 8px; transition: all 0.3s;
+        font-size: 15.5px; height: 48px;
+    }
+    
+    .btn-prev { background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; }
+    .btn-prev:hover { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+    
+    .btn-next { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff; box-shadow: var(--shadow-primary); }
+    .btn-next:hover { box-shadow: 0 10px 20px rgba(118, 181, 27, 0.35); transform: translateY(-2px); }
+    
+    .btn-submit-final { 
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; 
+        padding: 12px 36px; border: none; border-radius: 14px;
+        font-weight: 850; font-size: 16px; height: 48px;
+        cursor: pointer; display: flex; align-items: center; gap: 8px;
+        transition: all 0.3s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+    }
+    .btn-submit-final:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35); }
 
-.wizard-nav {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: 30px; gap: 16px;
-}
-.btn-nav {
-    padding: 12px 28px; border-radius: 12px; font-weight: 700;
-    font-family: 'Cairo', sans-serif; cursor: pointer; border: none;
-    display: flex; align-items: center; gap: 8px; transition: all 0.2s;
-    font-size: 15px;
-}
-.btn-prev { background: #fff; color: var(--text-muted); border: 1.5px solid var(--border); }
-.btn-prev:hover { background: var(--body-bg); color: var(--text-main); }
-.btn-next { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border: 1.5px solid transparent; }
-.btn-next:hover { box-shadow: 0 4px 20px rgba(79,70,229,.35); transform: translateX(-4px); }
-
-.btn-submit-final { 
-    background: linear-gradient(135deg, #059669, #10b981); color: #fff; 
-    padding: 12px 32px; border: none; border-radius: 12px;
-    font-weight: 700; font-size: 16px;
-    cursor: pointer; display: flex; align-items: center; gap: 8px;
-    transition: all .3s cubic-bezier(.4,0,.2,1);
-    box-shadow: 0 4px 16px rgba(5,150,105,.3);
-}
-.btn-submit-final:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(5,150,105,.4); }
-
-/* Custom Modal Styles */
-.custom-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(8px);
-    display: none; align-items: center; justify-content: center;
-    z-index: 1000; padding: 20px;
-}
-.custom-modal {
-    background: #fff; width: 100%; max-width: 480px;
-    border-radius: 24px; padding: 40px; text-align: center;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    animation: modalIn 0.3s ease-out;
-}
-@keyframes modalIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-.modal-icon {
-    width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1);
-    color: #10b981; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px; margin: 0 auto 24px;
-}
-.modal-title { font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
-.modal-desc { font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 32px; }
-.modal-actions { display: flex; gap: 12px; justify-content: center; }
-.modal-btn {
-    flex: 1; padding: 12px 24px; border-radius: 12px;
-    font-weight: 700; font-family: 'Cairo', sans-serif;
-    cursor: pointer; border: none; font-size: 15px; transition: all 0.2s;
-}
-.btn-confirm { background: #10b981; color: #fff; }
-.btn-confirm:hover { background: #059669; }
-.btn-cancel { background: #f1f5f9; color: #64748b; }
-.btn-cancel:hover { background: #e2e8f0; }
-
-/* Steps map update from user request */
-.steps-map {
-    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
-    margin-bottom: 30px;
-}
-.step-num-btn {
-    width: 36px; height: 36px; border-radius: 50%; 
-    background: #fff; border: 1.5px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: var(--text-muted);
-    cursor: pointer; transition: all 0.2s;
-}
-.step-num-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(37,99,235,0.05); }
-.step-num-btn.answered { background: linear-gradient(135deg, #059669, #10b981); color: #fff; border-color: transparent; }
-.step-num-btn.active { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; border-color: transparent; transform: scale(1.12); box-shadow: 0 4px 16px rgba(79,70,229,.3); z-index: 10; }
-.step-num-btn.answered.active { background: linear-gradient(135deg, #047857, #059669); border-color: transparent; box-shadow: 0 4px 16px rgba(5,150,105,.35); }
-
-.hidden { display: none !important; }
+    /* ── النافذة التأكيدية النهائية للتقديم (Glassmorphic Confirm Modal) ── */
+    .custom-modal-overlay {
+        position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        display: none; align-items: center; justify-content: center;
+        z-index: 1000; padding: 20px;
+        opacity: 0; transition: opacity 0.3s ease-out;
+    }
+    .custom-modal-overlay.show { display: flex; opacity: 1; }
+    
+    .custom-modal {
+        background: #fff; width: 100%; max-width: 480px;
+        border-radius: 24px; padding: 40px; text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transform: scale(0.95) translateY(10px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .custom-modal-overlay.show .custom-modal { transform: scale(1) translateY(0); }
+    
+    .modal-icon {
+        width: 80px; height: 80px; background: rgba(16, 185, 129, 0.08);
+        color: #10b981; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 40px; margin: 0 auto 24px;
+    }
+    .modal-icon.warning {
+        background: rgba(239, 68, 68, 0.08); color: #ef4444;
+    }
+    
+    .modal-title { font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 12px; }
+    .modal-desc { font-size: 14.5px; color: #64748b; line-height: 1.6; margin-bottom: 32px; }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .modal-btn {
+        flex: 1; padding: 12px 24px; border-radius: 12px;
+        font-weight: 800; font-family: 'Cairo', sans-serif;
+        cursor: pointer; border: none; font-size: 15px; transition: all 0.2s;
+    }
+    .btn-confirm { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
+    .btn-confirm:hover { background: #059669; }
+    .btn-cancel { background: #f1f5f9; color: #64748b; }
+    .btn-cancel:hover { background: #e2e8f0; }
 </style>
 @endpush
 
 @section('content')
+<!-- شريط التقدم الفخم المثبت علوياً -->
 <div class="exam-header">
-    <div>
-        <div class="exam-title">{{ $exam->title }}</div>
-        <div class="exam-progress-info" id="progress-text">0 / {{ count($questions) }} تمت الإجابة</div>
+    <div class="exam-title">
+        <i class="bi bi-shield-lock-fill"></i>
+        <span>{{ $exam->title }}</span>
     </div>
+    
     <div class="progress-bar-wrap">
+        <div class="exam-progress-info">
+            <span class="progress-badge" id="progress-text">0 / {{ count($questions) }} تمت الإجابة</span>
+            <span class="timer-badge" id="elapsed-timer">
+                <i class="bi bi-stopwatch-fill"></i>
+                <span id="timer-counter">00:00</span>
+            </span>
+        </div>
         <div class="progress-bar">
             <div class="progress-fill" id="progress-bar-fill" style="width:0%"></div>
         </div>
@@ -165,14 +231,19 @@
 </div>
 
 <div class="exam-body">
-    <div class="steps-map" id="steps-map">
-        @foreach($questions as $i => $question)
-            <div class="step-num-btn {{ $i === 0 ? 'active' : '' }}" id="dot-{{ $i }}" onclick="goToStep({{ $i }})">
-                {{ $i + 1 }}
-            </div>
-        @endforeach
+    <!-- شبكة خريطة الأسئلة للتحرك السريع والمباشر -->
+    <div class="steps-map-wrapper">
+        <span class="sm-header"><i class="bi bi-grid-3x3-gap-fill"></i> خريطة الأسئلة المتاحة</span>
+        <div class="steps-map" id="steps-map">
+            @foreach($questions as $i => $question)
+                <div class="step-num-btn {{ $i === 0 ? 'active' : '' }}" id="dot-{{ $i }}" onclick="goToStep({{ $i }})">
+                    {{ $i + 1 }}
+                </div>
+            @endforeach
+        </div>
     </div>
 
+    <!-- نموذج الاختبار -->
     <form method="POST" action="{{ route('exam.submit') }}" id="exam-form">
         @csrf
 
@@ -181,6 +252,7 @@
             <div class="question-card">
                 <div class="question-num">السؤال {{ $i + 1 }} من {{ count($questions) }}</div>
                 <div class="question-text">{{ $question['text'] }}</div>
+                
                 <div class="choices-grid">
                     @php $letters = ['أ', 'ب', 'ج', 'د', 'هـ', 'و']; @endphp
                     @foreach($question['choices'] as $ci => $choice)
@@ -195,10 +267,11 @@
                 </div>
             </div>
 
+            <!-- أزرار الإبحار بين الأسئلة -->
             <div class="wizard-nav">
                 @if($i > 0)
                     <button type="button" class="btn-nav btn-prev" onclick="prevStep()">
-                        <i class="bi bi-arrow-right"></i> السابق
+                        <i class="bi bi-arrow-right"></i> السؤال السابق
                     </button>
                 @else
                     <div></div>
@@ -206,11 +279,11 @@
                 
                 @if($i < count($questions) - 1)
                     <button type="button" class="btn-nav btn-next" onclick="nextStep()">
-                        التالي <i class="bi bi-arrow-left"></i>
+                        السؤال التالي <i class="bi bi-arrow-left"></i>
                     </button>
                 @else
                     <button type="button" class="btn-submit-final" onclick="showConfirmModal()">
-                        <i class="bi bi-check2-circle"></i> تسليم الاختبار
+                        <i class="bi bi-send-check"></i> إنهاء وتسليم الإجابات
                     </button>
                 @endif
             </div>
@@ -219,17 +292,17 @@
     </form>
 </div>
 
-<!-- Custom Confirmation Modal -->
+<!-- النافذة التأكيدية للتقديم النهائي -->
 <div class="custom-modal-overlay" id="confirm-modal">
     <div class="custom-modal">
-        <div class="modal-icon">
+        <div class="modal-icon" id="modal-icon-container">
             <i class="bi bi-send-check"></i>
         </div>
-        <div class="modal-title">تسليم الاختبار النهائي</div>
-        <div class="modal-desc" id="modal-message">هل أنت متأكد من رغبتك في إنهاء الاختبار وتسليم الإجابات؟ لن تتمكن من العودة مجدداً.</div>
+        <div class="modal-title" id="modal-title-text">تسليم الإجابات وإنهاء الاختبار</div>
+        <div class="modal-desc" id="modal-message">هل أنت متأكد من رغبتك في تسليم الاختبار نهائياً؟ يرجى العلم أنه لا يمكن تعديل الإجابات بعد التسليم.</div>
         <div class="modal-actions">
             <button type="button" class="modal-btn btn-confirm" id="btn-final-confirm" onclick="finalSubmitForm()">نعم، تسليم الإجابات</button>
-            <button type="button" class="modal-btn btn-cancel" onclick="hideConfirmModal()">إلغاء</button>
+            <button type="button" class="modal-btn btn-cancel" onclick="hideConfirmModal()">مراجعة الإجابات</button>
         </div>
     </div>
 </div>
@@ -237,95 +310,132 @@
 
 @push('scripts')
 <script>
-let currentStep = 0;
-const totalSteps = {{ count($questions) }};
-const answeredQuestions = new Set();
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentStep = 0;
+        const totalSteps = {{ count($questions) }};
+        const answeredQuestions = new Set();
+        
+        // ⏱️ محرك المؤقت الزمني المتصاعد
+        let elapsedSeconds = 0;
+        const timerCounter = document.getElementById('timer-counter');
+        
+        const stopwatchInterval = setInterval(() => {
+            elapsedSeconds++;
+            const minutes = Math.floor(elapsedSeconds / 60);
+            const seconds = elapsedSeconds % 60;
+            
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            
+            if (timerCounter) {
+                timerCounter.textContent = `${formattedMinutes}:${formattedSeconds}`;
+            }
+        }, 1000);
 
-function updateUI() {
-    document.querySelectorAll('.question-wizard').forEach((el, index) => {
-        el.classList.toggle('active', index === currentStep);
-    });
+        window.updateUI = function() {
+            document.querySelectorAll('.question-wizard').forEach((el, index) => {
+                el.classList.toggle('active', index === currentStep);
+            });
 
-    document.querySelectorAll('.step-num-btn').forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentStep);
-    });
+            document.querySelectorAll('.step-num-btn').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentStep);
+            });
 
-    const progressPct = (answeredQuestions.size / totalSteps) * 100;
-    const bar = document.getElementById('progress-bar-fill');
-    if (bar) bar.style.width = progressPct + '%';
-    
-    const text = document.getElementById('progress-text');
-    if (text) text.textContent = `${answeredQuestions.size} / ${totalSteps} تمت الإجابة`;
-}
-
-function nextStep() {
-    if (currentStep < totalSteps - 1) {
-        currentStep++;
-        updateUI();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function prevStep() {
-    if (currentStep > 0) {
-        currentStep--;
-        updateUI();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-}
-
-function goToStep(index) {
-    currentStep = index;
-    updateUI();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function onAnswerSelected(stepIndex, questionId, input) {
-    const labels = input.closest('.choices-grid').querySelectorAll('.choice-label');
-    labels.forEach(l => l.classList.remove('selected'));
-    input.closest('.choice-label').classList.add('selected');
-
-    answeredQuestions.add(questionId);
-    const dot = document.getElementById(`dot-${stepIndex}`);
-    if (dot) dot.classList.add('answered');
-    
-    updateUI();
-
-    setTimeout(() => {
-        if (currentStep < totalSteps - 1) {
-            nextStep();
+            const progressPct = (answeredQuestions.size / totalSteps) * 100;
+            const bar = document.getElementById('progress-bar-fill');
+            if (bar) bar.style.width = progressPct + '%';
+            
+            const text = document.getElementById('progress-text');
+            if (text) text.textContent = `${answeredQuestions.size} / ${totalSteps} تمت الإجابة`;
         }
-    }, 600);
-}
 
-// Custom Modal Functions
-function showConfirmModal() {
-    const unansweredCount = totalSteps - answeredQuestions.size;
-    const modalMessage = document.getElementById('modal-message');
-    
-    if (unansweredCount > 0) {
-        modalMessage.innerHTML = `تنبيه: لم تجب على <strong style="color:#ef4444">${unansweredCount}</strong> سؤال. <br> هل أنت متأكد من رغبتك في تسليم الاختبار على أي حال؟`;
-    } else {
-        modalMessage.textContent = 'أحسنت! لقد أجبت على جميع الأسئلة. هل أنت متأكد من تسليم الاختبار الآن؟';
-    }
-    
-    document.getElementById('confirm-modal').style.display = 'flex';
-}
+        window.nextStep = function() {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
 
-function hideConfirmModal() {
-    document.getElementById('confirm-modal').style.display = 'none';
-}
+        window.prevStep = function() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
 
-function finalSubmitForm() {
-    const btn = document.getElementById('btn-final-confirm');
-    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري الإرسال...';
-    btn.disabled = true;
-    
-    console.log('Final submission confirmed. Submitting form now.');
-    document.getElementById('exam-form').submit();
-}
+        window.goToStep = function(index) {
+            currentStep = index;
+            updateUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-// Initial UI sync
-updateUI();
+        window.onAnswerSelected = function(stepIndex, questionId, input) {
+            const labels = input.closest('.choices-grid').querySelectorAll('.choice-label');
+            labels.forEach(l => l.classList.remove('selected'));
+            input.closest('.choice-label').classList.add('selected');
+
+            answeredQuestions.add(questionId);
+            const dot = document.getElementById(`dot-${stepIndex}`);
+            if (dot) dot.classList.add('answered');
+            
+            updateUI();
+
+            setTimeout(() => {
+                if (currentStep < totalSteps - 1) {
+                    nextStep();
+                }
+            }, 600);
+        }
+
+        // ── دوال التحكم بالنافذة المنبثقة الذكية ──
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalIconContainer = document.getElementById('modal-icon-container');
+        const modalTitleText = document.getElementById('modal-title-text');
+        const modalMessage = document.getElementById('modal-message');
+
+        window.showConfirmModal = function() {
+            const unansweredCount = totalSteps - answeredQuestions.size;
+            
+            if (unansweredCount > 0) {
+                modalIconContainer.className = 'modal-icon warning';
+                modalIconContainer.innerHTML = '<i class="bi bi-exclamation-triangle"></i>';
+                modalTitleText.textContent = 'تنبيه: أسئلة غير مكتملة!';
+                modalMessage.innerHTML = `مرحباً، انتبه! لم تقم بالإجابة على <strong style="color:#ef4444; font-size: 16px;">${unansweredCount}</strong> سؤال من أصل <strong style="color: var(--primary);">${totalSteps}</strong> أسئلة.<br><small style="display:block; margin-top:8px; color:#64748b;">هل أنت متأكد من تسليم الإجابات الحالية وإنهاء الجلسة؟</small>`;
+            } else {
+                modalIconContainer.className = 'modal-icon';
+                modalIconContainer.innerHTML = '<i class="bi bi-send-check-fill"></i>';
+                modalTitleText.textContent = 'عمل رائع ومكتمل!';
+                modalMessage.textContent = 'أحسنت! لقد أجبت على جميع الأسئلة بنجاح. هل أنت جاهز لتسليم الاختبار والحصول على نتيجتك الرقمية الفورية؟';
+            }
+            
+            confirmModal.style.display = 'flex';
+            setTimeout(() => confirmModal.classList.add('show'), 10);
+        }
+
+        window.hideConfirmModal = function() {
+            confirmModal.classList.remove('show');
+            setTimeout(() => confirmModal.style.display = 'none', 300);
+        }
+
+        window.finalSubmitForm = function() {
+            // إيقاف مؤقت الثواني
+            clearInterval(stopwatchInterval);
+            
+            const btn = document.getElementById('btn-final-confirm');
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري إرسال إجاباتك الحالية...';
+            btn.disabled = true;
+            document.getElementById('exam-form').submit();
+        }
+
+        // تفعيل المستمع للنقرات الخارجية لإلغاء المودال
+        confirmModal.addEventListener('click', function(e) {
+            if (e.target === confirmModal) { hideConfirmModal(); }
+        });
+
+        // تشغيل التهيئة الابتدائية
+        updateUI();
+    });
 </script>
 @endpush

@@ -39,6 +39,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('subjects.by-grade');
 
         // Questions
+        Route::delete('questions/bulk-destroy', [QuestionController::class, 'bulkDestroy'])
+            ->name('questions.bulk-destroy');
         Route::resource('questions', QuestionController::class)->except(['show']);
         Route::get('questions/by-subject/{subject}', [QuestionController::class, 'bySubject'])
             ->name('questions.by-subject');

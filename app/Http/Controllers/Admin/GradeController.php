@@ -13,11 +13,46 @@ class GradeController extends Controller
         $query = Grade::query();
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
         }
 
-        $grades = $query->withCount(['subjects', 'exams'])->ordered()->paginate(10);
+        // Add subjects filter
+        if ($request->filled('subjects_filter')) {
+            if ($request->subjects_filter === 'has_subjects') {
+                $query->has('subjects');
+            } elseif ($request->subjects_filter === 'no_subjects') {
+                $query->doesntHave('subjects');
+            }
+        }
+
+        // Add exams filter
+        if ($request->filled('exams_filter')) {
+            if ($request->exams_filter === 'has_exams') {
+                $query->has('exams');
+            } elseif ($request->exams_filter === 'no_exams') {
+                $query->doesntHave('exams');
+            }
+        }
+
+        $query->withCount(['subjects', 'exams']);
+
+        // Add sorting
+        if ($request->filled('sort_by')) {
+            if ($request->sort_by === 'subjects_count') {
+                $query->orderBy('subjects_count', 'desc');
+            } elseif ($request->sort_by === 'exams_count') {
+                $query->orderBy('exams_count', 'desc');
+            } else {
+                $query->ordered();
+            }
+        } else {
+            $query->ordered();
+        }
+
+        $grades = $query->paginate(12);
         $totalCount = Grade::count();
 
         return view('admin.grades.index', compact('grades', 'totalCount'));

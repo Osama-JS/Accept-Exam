@@ -14,7 +14,9 @@ class ExamController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Exam::with(['grade', 'academicYear'])->withCount('studentExams');
+        $query = Exam::with(['grade' => function($q) {
+            $q->withCount('students');
+        }, 'academicYear'])->withCount('studentExams');
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
@@ -26,6 +28,14 @@ class ExamController extends Controller
 
         if ($request->filled('academic_year_id')) {
             $query->where('academic_year_id', $request->academic_year_id);
+        }
+
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'locked') {
+                $query->where('is_active', false);
+            }
         }
 
         $exams = $query->latest()->paginate(10);

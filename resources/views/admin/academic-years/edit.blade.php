@@ -1,5 +1,6 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 @section('title', 'تعديل السنة الدراسية')
+@section('breadcrumb', 'تعديل السنة الدراسية')
 @section('page-title', 'تعديل السنة الدراسية')
 
 @section('content')

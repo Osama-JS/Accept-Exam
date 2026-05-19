@@ -30,4 +30,20 @@ class AcademicYear extends Model
     {
         return static::where('is_current', true)->first();
     }
+
+    public function getLifecycleStatusAttribute(): string
+    {
+        if ($this->is_current) {
+            return 'active';
+        }
+        
+        $currentYear = static::getCurrent();
+        
+        if ($currentYear && $this->name < $currentYear->name) {
+            return 'archived';
+        }
+        
+        return 'upcoming';
+    }
 }
+

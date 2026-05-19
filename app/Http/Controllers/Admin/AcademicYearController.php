@@ -35,7 +35,13 @@ class AcademicYearController extends Controller
             'name' => 'required|string|max:50|unique:academic_years,name',
         ], ['name.unique' => 'هذه السنة الدراسية موجودة بالفعل.']);
 
-        AcademicYear::create($data);
+        $academicYear = AcademicYear::create($data);
+        
+        if ($request->boolean('is_current')) {
+            $academicYear->makeCurrent();
+            Setting::set('current_academic_year_id', $academicYear->id);
+        }
+        
         return redirect()->route('admin.academic-years.index')->with('success', 'تم إضافة السنة الدراسية بنجاح.');
     }
 
