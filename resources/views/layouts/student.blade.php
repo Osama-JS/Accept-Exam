@@ -118,7 +118,7 @@
         }
         
         .nav-links a {
-            color: rgba(255, 255, 255, 0.7);
+            color:#F9FAFB;
             text-decoration: none;
             font-size: 16px;
             font-weight: 700;
@@ -127,7 +127,7 @@
         }
         
         .nav-links a:hover {
-            color: #ffffff;
+            color: #65A30D;
         }
         
         .nav-links a.active {
@@ -410,7 +410,6 @@
         <div class="nav-links">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">الرئيسية</a>
             <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">من نحن</a>
-            <a href="{{ route('home') }}#programs">البرامج</a>
             <a href="#contact">اتصل بنا</a>
         </div>
 
@@ -438,7 +437,6 @@
     <div class="drawer-links" style="flex: 1;">
         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">الرئيسية</a>
         <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? 'active' : '' }}">من نحن</a>
-        <a href="{{ route('home') }}#programs">البرامج</a>
         <a href="#contact">اتصل بنا</a>
     </div>
     <div class="drawer-footer" style="margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.08);">

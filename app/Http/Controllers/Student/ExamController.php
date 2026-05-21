@@ -63,7 +63,7 @@ class ExamController extends Controller
             $types = $config->types ?? ['mcq' => 0, 'tf' => 0, 'matching' => 0, 'essay' => 0];
 
             $subjectQuestions = \App\Models\Question::where('subject_id', $config->subject_id)
-                ->where('grade_id', $exam->grade_id)
+                ->where('grade_id', $config->grade_id ?? $exam->grade_id)
                 ->with('choices')
                 ->inRandomOrder()
                 ->get();

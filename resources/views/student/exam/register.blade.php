@@ -33,7 +33,7 @@
 
     /* ── كارت ملخص الاختبار (Exam Summary Banner) ── */
     .exam-summary {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        background: linear-gradient(135deg, #475b27 0%, #76b51b 100%);
         border-radius: 24px; padding: 32px; color: #fff; margin-bottom: 32px;
         display: flex; align-items: center; gap: 24px;
         position: relative; overflow: hidden;

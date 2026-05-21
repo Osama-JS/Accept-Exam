@@ -166,7 +166,7 @@
                         </div>
                         <div>
                             <span class="source-label">{{ $config->subject->name }}</span>
-                            <div class="source-sublbl"><i class="bi bi-layers-half"></i> {{ $config->subject->grade->name }}</div>
+                            <div class="source-sublbl"><i class="bi bi-layers-half"></i> {{ $config->grade->name ?? 'غير محدد' }}</div>
                         </div>
                     </div>
                     <span class="badge badge-info" style="border-radius: 8px; font-weight: 700; padding: 6px 12px;">{{ $config->question_count }} سؤال</span>

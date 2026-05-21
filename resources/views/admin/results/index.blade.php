@@ -213,7 +213,7 @@
         @endif
     </form>
     
-    <a href="{{ route('admin.results.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-success" style="padding: 12px 24px; border-radius: 12px; font-size: 14px; background: #16a34a; border: none; box-shadow: 0 6px 20px rgba(22, 163, 74, 0.25); display: inline-flex; align-items: center; gap: 8px;">
+    <a id="resultsExportBtn" href="{{ route('admin.results.export') }}?{{ http_build_query(request()->all()) }}" class="btn btn-success" style="padding: 12px 24px; border-radius: 12px; font-size: 14px; background: #16a34a; border: none; box-shadow: 0 6px 20px rgba(22, 163, 74, 0.25); display: inline-flex; align-items: center; gap: 8px;">
         <i class="bi bi-file-earmark-excel"></i> تصدير البيانات لـ Excel
     </a>
 </div>
@@ -332,6 +332,11 @@
         const formData = new FormData(filterForm);
         const queryParams = new URLSearchParams(formData).toString();
         const url = `{{ route('admin.results.index') }}?${queryParams}`;
+        
+        const exportBtn = document.getElementById('resultsExportBtn');
+        if (exportBtn) {
+            exportBtn.href = `{{ route('admin.results.export') }}?${queryParams}`;
+        }
         
         fetch(url, {
             headers: {

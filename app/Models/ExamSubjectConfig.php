@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ExamSubjectConfig extends Model
 {
     protected $fillable = [
-        'exam_id', 'subject_id', 'question_count',
+        'exam_id', 'grade_id', 'subject_id', 'question_count',
         'marks_per_question', 'difficulties', 'types'
     ];
 
@@ -22,6 +22,11 @@ class ExamSubjectConfig extends Model
     public function exam(): BelongsTo
     {
         return $this->belongsTo(Exam::class);
+    }
+
+    public function grade(): BelongsTo
+    {
+        return $this->belongsTo(Grade::class);
     }
 
     public function subject(): BelongsTo

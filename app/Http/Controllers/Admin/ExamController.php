@@ -86,12 +86,12 @@ class ExamController extends Controller
 
         foreach ($request->configs as $config) {
             $subject = Subject::findOrFail($config['subject_id']);
-            if ($subject->grade_id == $request->grade_id) {
+            if ($config['grade_id'] == $request->grade_id) {
                 return back()->withErrors(['configs' => 'لا يمكن سحب أسئلة من نفس الصف المستهدف للاختبار.'])->withInput();
             }
-            $available = $subject->questions()->where('grade_id', $request->grade_id)->count();
+            $available = $subject->questions()->where('grade_id', $config['grade_id'])->count();
             if ($available < $config['question_count']) {
-                return back()->withErrors(['configs' => "عدد الأسئلة المطلوبة من مادة \"{$subject->name}\" ({$config['question_count']}) يتجاوز المتاح لهذه المادة في الصف المستهدف ({$available})."])->withInput();
+                return back()->withErrors(['configs' => "عدد الأسئلة المطلوبة من مادة \"{$subject->name}\" ({$config['question_count']}) يتجاوز المتاح لهذه المادة في الصف المصدر ({$available})."])->withInput();
             }
 
             $diffSum = (int)($config['easy_count'] ?? 0) + (int)($config['medium_count'] ?? 0) + (int)($config['hard_count'] ?? 0);
@@ -132,6 +132,7 @@ class ExamController extends Controller
 
         foreach ($request->configs as $config) {
             $exam->subjectConfigs()->create([
+                'grade_id'           => $config['grade_id'],
                 'subject_id'         => $config['subject_id'],
                 'question_count'     => $config['question_count'],
                 'marks_per_question' => $config['marks_per_question'],
@@ -163,7 +164,7 @@ class ExamController extends Controller
 
     public function show(Exam $exam)
     {
-        $exam->load(['grade', 'academicYear', 'subjectConfigs.subject.grade', 'studentExams.student']);
+        $exam->load(['grade', 'academicYear', 'subjectConfigs.grade', 'subjectConfigs.subject', 'studentExams.student']);
         return view('admin.exams.show', compact('exam'));
     }
 

@@ -7,6 +7,8 @@ use App\Models\Grade;
 use App\Models\Subject;
 use App\Models\Question;
 use Illuminate\Http\Request;
+use App\Exports\GradesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GradeController extends Controller
 {
@@ -160,5 +162,14 @@ class GradeController extends Controller
             'success' => true,
             'message' => 'تم مزامنة وتحديث ربط المواد الدراسية بالصف الدراسي بنجاح.',
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        $gradeIds = $request->input('ids', []);
+        
+        $fileName = 'تقرير_الصفوف_الدراسية_' . now()->format('Y-m-d') . '.xlsx';
+        
+        return Excel::download(new GradesExport($gradeIds), $fileName);
     }
 }

@@ -919,33 +919,43 @@
         // ── التصدير الفوري المحدد إلى ملف Excel (Excel Export) ──
         window.exportSelectedExcel = function() {
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-            if (checkedBoxes.length === 0) return;
+            if (checkedBoxes.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'تنبيه',
+                    text: 'يرجى تحديد صف دراسي واحد على الأقل للتصدير.',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#76b51b'
+                });
+                return;
+            }
             
-            let csvContent = "\uFEFF"; // إشارة دعم الترميز العربي في ملفات Excel
-            csvContent += "الترتيب الرقمي,اسم الصف الدراسي,الوصف,عدد المواد,عدد الاختبارات\n";
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
             
-            checkedBoxes.forEach(cb => {
-                const card = cb.closest('.grade-card');
-                if (card) {
-                    const order = card.querySelector('.icon-wrapper').textContent.replace('#', '').trim();
-                    const name = card.querySelector('.grade-name').textContent.trim();
-                    const desc = card.querySelector('.grade-desc').textContent.trim();
-                    const boxes = card.querySelectorAll('.grade-metric-val');
-                    const subjects = boxes[0].textContent.replace('مواد', '').trim();
-                    const exams = boxes[1].textContent.replace('اختبار', '').trim();
-                    
-                    csvContent += `"${order}","${name}","${desc}","${subjects}","${exams}"\n`;
-                }
+            // Create form dynamically to submit IDs and trigger download
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ route('admin.grades.export') }}";
+            
+            // CSRF Token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = "{{ csrf_token() }}";
+            form.appendChild(csrfInput);
+            
+            // IDs
+            ids.forEach(id => {
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'ids[]';
+                idInput.value = id;
+                form.appendChild(idInput);
             });
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `صفوف_دراسية_محددة_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
         };
 
         // ── الحذف الجماعي الآمن عبر AJAX بالتزامن مع Laravel باستخدام SweetAlert2 ──

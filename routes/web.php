@@ -31,6 +31,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Grades
+        Route::post('grades/export', [GradeController::class, 'export'])->name('grades.export');
         Route::get('grades/{grade}/subjects', [GradeController::class, 'getSubjects'])->name('grades.subjects');
         Route::post('grades/{grade}/subjects', [GradeController::class, 'syncSubjects'])->name('grades.subjects.sync');
         Route::resource('grades', GradeController::class)->except(['show']);

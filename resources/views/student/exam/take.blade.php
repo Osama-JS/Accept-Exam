@@ -543,7 +543,7 @@
 
         window.finalSubmitForm = function() {
             // إيقاف مؤقت الثواني
-            clearInterval(stopwatchInterval);
+            clearInterval(countdownInterval);
             
             const btn = document.getElementById('btn-final-confirm');
             btn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري إرسال إجاباتك الحالية...';

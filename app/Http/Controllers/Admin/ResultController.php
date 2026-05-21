@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\StudentExam;
 use App\Exports\ResultsExport;
-use Barryvdh\DomPDF\Facade\Pdf;
+use niklasravnsborg\LaravelPdf\Facades\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -62,8 +62,7 @@ class ResultController extends Controller
             'answers.chosenChoice',
         ]);
 
-        $pdf = Pdf::loadView('admin.results.print', compact('studentExam'))
-            ->setPaper('a4');
+        $pdf = Pdf::loadView('admin.results.print', compact('studentExam'));
         return $pdf->stream("result-{$studentExam->result_token}.pdf");
     }
 

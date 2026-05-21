@@ -12,7 +12,10 @@
     }
     .page-hero::before {
         content: ''; position: absolute; inset: 0;
-        background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(118, 181, 27, 0.15) 0%, transparent 65%);
+        background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(118, 181, 27, 0.12) 0%, transparent 65%),
+        linear-gradient(to bottom, #121212 0%, #1F2937 100%);
+        background-size: cover;
+        background-position: center;
     }
     .page-hero::after {
         content: '\F644'; font-family: 'bootstrap-icons'; position: absolute;
