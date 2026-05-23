@@ -261,10 +261,10 @@
                                 </div>
                             </td>
                             <td>
-                                <div style="color: #1e293b; font-weight: 800;">{{ Str::limit($r->exam->title, 40) }}</div>
-                                <div style="color: #94a3b8; font-size: 11px; font-weight: 600;"><i class="bi bi-calendar3"></i> {{ $r->exam->academicYear->name }}</div>
+                                <div style="color: #1e293b; font-weight: 800;">{{ Str::limit(optional($r->exam)->title ?? 'غير محدد', 40) }}</div>
+                                <div style="color: #94a3b8; font-size: 11px; font-weight: 600;"><i class="bi bi-calendar3"></i> {{ optional(optional($r->exam)->academicYear)->name ?? '—' }}</div>
                             </td>
-                            <td><span class="badge badge-primary" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">{{ $r->exam->grade->name }}</span></td>
+                            <td><span class="badge badge-primary" style="font-size: 11px; padding: 4px 8px; border-radius: 6px;">{{ optional(optional($r->exam)->grade)->name ?? '—' }}</span></td>
                             <td class="fw-bold" style="font-size: 14px;">{{ $r->score }} / {{ $r->total_marks }}</td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 10px;">

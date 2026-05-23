@@ -13,7 +13,7 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $settings = [
-            'school_name'            => 'مدرسة التميز الذكية',
+            'school_name'            => 'مدرسة القيم الذكية',
             'system_enabled'         => '1',
             'school_logo'            => null,
             'home_hero_image'        => null,
@@ -21,7 +21,7 @@ class SettingSeeder extends Seeder
             'contact_phone'          => '+967777777777',
             'welcome_message'        => 'مرحباً بك في نظام امتحانات القبول',
             'show_results_instantly' => '1',
-            
+
             // About Us Settings
             'about_description'      => 'مؤسسة تعليمية رائدة تكرس جهودها لبناء جيل مسلح بالعلم، ومستمسك بالقيم الأخلاقية، وقادر على الابتكار والتميز والمنافسة محلياً وعالمياً.',
             'about_vision'           => 'الريادة في تقديم تعليم إبداعي ذي جودة عالية يدمج بين القيم والتميز الأكاديمي، لنكون الخيار الأول في صناعة قادة المستقبل وتنمية مجتمع المعرفة.',
@@ -31,7 +31,7 @@ class SettingSeeder extends Seeder
             'about_stat_years'       => '+15',
             'about_stat_graduates'   => '+2,500',
             'about_stat_teachers'    => '+120',
-            
+
             // Why Choose Us settings
             'about_features_intro'   => 'نقدم بيئة ومقومات تعليمية استثنائية تجعلنا الخيار الأمثل لمستقبل أبنائكم الأكاديمي والمهني',
             'about_feature1_title'   => 'كادر أكاديمي نخبوي',
@@ -42,7 +42,7 @@ class SettingSeeder extends Seeder
             'about_feature3_desc'    => 'نقدم خططاً دراسية متميزة ومساندة تعزز الفهم والتجربة والبحث العملي، وتركز على بناء القدرات العلمية والتحليلية.',
             'about_feature4_title'   => 'رعاية ومتابعة شاملة',
             'about_feature4_desc'    => 'رعاية سلوكية وصحية متكاملة، وقنوات اتصال مباشرة ومستمرة مع أولياء الأمور لمتابعة مستويات أداء الطلاب ودعم مسيرتهم.',
-            
+
             // Journey Steps Settings
             'steps_section_title'    => 'خطوات رحلة القبول الإلكتروني',
             'steps_section_desc'     => 'قمنا بتبسيط وتأمين خطوات التقديم لتضمن مقعدك الدراسي في بضع دقائق ومن أي جهاز',
@@ -58,7 +58,7 @@ class SettingSeeder extends Seeder
             'step4_icon'             => '🏆',
             'step4_title'            => '4. احصل على نتيجتك',
             'step4_desc'             => 'فور الانتهاء من تأدية الامتحان، يصدر النظام تقرير أداء فوري ومؤشرات النجاح والقبول للطلب.',
-            
+
             // FAQ Settings
             'faq_section_title'      => 'الأسئلة الشائعة حول القبول',
             'faq_section_desc'       => 'كل ما تود معرفته عن امتحانات القبول الإلكترونية بمدارس القيم الأهلية',
