@@ -9,7 +9,7 @@ class ExamSubjectConfig extends Model
 {
     protected $fillable = [
         'exam_id', 'grade_id', 'subject_id', 'question_count',
-        'marks_per_question', 'difficulties', 'types'
+        'marks_per_question', 'difficulties', 'types', 'sort_order'
     ];
 
     protected $casts = [
@@ -17,6 +17,7 @@ class ExamSubjectConfig extends Model
         'marks_per_question' => 'integer',
         'difficulties'       => 'array',
         'types'              => 'array',
+        'sort_order'         => 'integer',
     ];
 
     public function exam(): BelongsTo

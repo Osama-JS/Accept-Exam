@@ -40,8 +40,9 @@
             letter-spacing: -0.01em;
         }
         html, body {
-            overflow-x: hidden;
+            overflow-x: auto; /* السماح بالتمرير الأفقي إذا لزم الأمر */
             width: 100%;
+            min-width: 421px; /* تثبيت عرض الموقع بحيث لا يقل عن 421 بيكسل */
         }
         body { 
             background: var(--body-bg); 
@@ -61,50 +62,47 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 20px rgba(0,0,0,0.25);
             padding: 0;
-            overflow: hidden;
+            overflow: hidden; /* prevents SVG spill */
         }
         .header-inner {
             width: 100%;
             height: 100%;
-            max-width: 100%;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px 0 0; /* 0 on the right to let the logo tab touch the viewport edge */
-            margin-inline-end:auto;
         }
 
         /* Logo Tab Container (Right) */
         .site-logo-container {
             position: relative;
-            height: 80px;
+            height: 100%;
             display: flex;
             align-items: center;
-            padding-right: 48px;
-            padding-left: 80px; /* space for the S-curve sloped transition */
+            padding-right: 20px;
+            padding-left: 60px; /* space for the S-curve sloped transition */
             z-index: 10;
         }
+        .header-svg-bg {
+            position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: -1; pointer-events: none;
+            /* Stretch SVG to fill container completely */
+        }
+        .header-svg-bg svg {
+            width: 100%; height: 100%; display: block;
+        }
+        
         .site-logo {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             text-decoration: none;
         }
-        .logo-icon-svg {
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+        .site-logo img {
+            height: 60px; width: auto; object-fit: contain;
         }
         .logo-name { 
-            font-weight: 900; 
-            font-size: 20px; 
-            line-height: 1.2; 
-            color: #18191b; 
+            display: flex; flex-direction: column; justify-content: center;
         }
-        .logo-name small { 
-            display: block; 
-            font-size: 13px; 
-            font-weight: 800; 
-            color: #99c110;; 
-            margin-top: 2px; 
-        }
+        .logo-text-1 { font-size: 16px; font-weight: 900; color: #18191b; line-height: 1.2; }
+        .logo-text-2 { font-size: 11px; font-weight: 800; color: #555; line-height: 1.2; }
+        .logo-text-3 { font-size: 11px; font-weight: 800; color: #c30e14; line-height: 1.2; text-align: left; }
 
         /* Navigation Links (Center - On Dark Background) */
         .nav-links {
@@ -116,30 +114,37 @@
             padding: 0;
             z-index: 5;
         }
-        
         .nav-links a {
-            color:#F9FAFB;
+            color: #F9FAFB;
             text-decoration: none;
             font-size: 16px;
             font-weight: 700;
             transition: all .3s ease;
             padding: 8px 4px;
         }
-        
-        .nav-links a:hover {
-            color: #65A30D;
-        }
-        
-        .nav-links a.active {
-            color: #76b51b;
-            font-weight: 800;
-        }
+        .nav-links a:hover { color: #65A30D; }
+        .nav-links a.active { color: #76b51b; font-weight: 800; }
 
         /* Action Area (Left) */
         .header-actions {
             display: flex;
             align-items: center;
+            padding-left: 20px;
+            gap: 16px;
             z-index: 5;
+        }
+        
+        .btn-admin {
+            display: inline-flex; align-items: center; gap: 12px; 
+            background: linear-gradient(280deg, #76b51b 35%, #ffffff 90%); 
+            color: #ffffff; padding: 10px 24px; border-radius: 50px; 
+            font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 800; 
+            text-decoration: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); 
+            transition: all 0.3s ease;
+        }
+        .btn-admin .icon-circle {
+            background: #ffffff; width: 26px; height: 26px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
         /* ── Main Content Area ── */
@@ -172,11 +177,10 @@
             background: transparent;
             border: none;
             color: #ffffff;
-            font-size: 26px;
+            font-size: 28px;
             cursor: pointer;
-            padding: 8px;
+            padding: 4px;
             transition: color 0.2s;
-            margin-right: 8px;
         }
         .mobile-menu-toggle:hover {
             color: var(--primary);
@@ -278,107 +282,38 @@
         }
 
         @media (max-width: 768px) {
-            .site-header { padding: 0 12px !important; height: 80px !important; }
-            .header-inner { padding: 0 !important; }
-            
             .site-logo-container {
-                padding-right: 24px !important;
-                padding-left: 48px !important;
-                height: 80px !important;
-            }
-            .site-logo-container svg {
-                display: block !important;
-            }
-            .site-logo-container::before {
-                display: none !important;
-            }
-            .site-logo {
-                margin-right: -24px !important;
-                margin-left: 0 !important;
-                gap: 10px !important;
+                padding-right: 15px;
+                padding-left: 45px; 
             }
             .site-logo img {
-                height: 56px !important;
+                height: 50px;
             }
-            .logo-name {
-                display: flex !important;
-                flex-direction: column !important;
-            }
-            .logo-name small {
-                display: block !important;
-                font-weight: 800 !important;
-            }
-            .logo-name small:nth-child(1) {
-                font-size: 13px !important;
-            }
-            .logo-name small:nth-child(2) {
-                font-size: 9px !important;
-                color: #555 !important;
-            }
-            .logo-name small:nth-child(3) {
-                font-size: 9px !important;
-                color: #c30e14 !important;
-                text-align: left !important;
-            }
+            .logo-text-1 { font-size: 14px; }
+            .logo-text-2 { font-size: 9px; }
+            .logo-text-3 { font-size: 9px; }
         }
 
         @media (max-width: 576px) {
-            .site-header { height: 75px !important; }
+            .site-header { height: 70px; }
             .site-logo-container {
-                padding-right: 12px !important;
-                padding-left: 36px !important;
-                height: 75px !important;
+                padding-right: 10px;
+                padding-left: 30px; 
             }
-            .site-logo {
-                margin-right: -12px !important;
-                gap: 6px !important;
-            }
+            .site-logo { gap: 8px; }
             .site-logo img {
-                height: 48px !important;
+                height: 44px;
             }
-            .logo-name small:nth-child(1) {
-                font-size: 11px !important;
-            }
-            .logo-name small:nth-child(2) {
-                font-size: 8px !important;
-            }
-            .logo-name small:nth-child(3) {
-                font-size: 8px !important;
-            }
-            .header-actions {
-                gap: 4px !important;
-            }
+            .logo-text-1 { font-size: 12px; }
+            .logo-text-2 { font-size: 8px; }
+            .logo-text-3 { font-size: 8px; }
+            .header-actions { padding-left: 10px; left: 0; }
+            .mobile-menu-toggle { font-size: 24px; }
         }
 
-        @media (max-width: 423px) {
-            .site-header { height: 70px !important; }
-            .site-logo-container {
-                max-width: 74% !important;
-                padding-right: 6px !important;
-                padding-left: 32px !important;
-                height: 70px !important;
-            }
-            .site-logo {
-                margin-right: -6px !important;
-                gap: 5px !important;
-            }
-            .site-logo img {
-                height: 40px !important;
-            }
-            .logo-name small:nth-child(1) {
-                font-size: 10px !important;
-            }
-            .logo-name small:nth-child(2) {
-                font-size: 7.5px !important;
-            }
-            .logo-name small:nth-child(3) {
-                font-size: 7.5px !important;
-            }
-            .mobile-menu-toggle {
-                font-size: 22px !important;
-                padding: 6px !important;
-            }
-        }
+        
+
+        /* إزالة قواعد ما دون 400 بيكسل لأننا قمنا بتثبيت عرض الموقع على 421 بيكسل كحد أدنى */
     </style>
     @stack('styles')
 </head>
@@ -389,19 +324,18 @@
         
         <!-- Logo Area with White S-curve Background Shape -->
         <div class="site-logo-container">
-            <!-- Smooth S-curve SVG Background -->
-            <div style="position: absolute; top: 0; right: -40px; bottom: 0; left: 0; z-index: -1; pointer-events: none;">
-                <svg width="100%" height="100%" viewBox="0 0 350 80" preserveAspectRatio="none" style="display: block;">
+            <div class="header-svg-bg">
+                <svg viewBox="0 0 350 80" preserveAspectRatio="none">
                     <path d="M 0 0 C 50 0, 30 80, 80 80 L 350 80 L 350 0 Z" fill="#ffffff" />
                 </svg>
             </div>
             
-            <a href="{{ route('home') ?? '/' }}" class="site-logo" style="display: flex; align-items: center; justify-content: center; height: 100%; padding-top: 4px; padding-bottom: 4px; margin-left: 20px; margin-right: -60px; text-align: justify;">
-                <img src="{{ asset('images/logo2.png') }}" alt="مدارس القيم الأهلية" style="height: 68px; width: auto; object-fit: contain; max-width: 240px;">
+            <a href="{{ route('home') ?? '/' }}" class="site-logo">
+                <img src="{{ asset('images/logo2.png') }}" alt="مدارس القيم الأهلية">
                 <div class="logo-name">
-                   <small style="font-size: medium;"> مدرسة القيم الأهلية</small>
-                    <small style="font-size: medium;">ALQIYAM CIVIL SCHOOL</small>
-                    <small style="color: #c30e14; text-align: end; font-size: small;">.. تعليمنا قيم</small>
+                   <small class="logo-text-1">مدرسة القيم الأهلية</small>
+                   <small class="logo-text-2">ALQIYAM CIVIL SCHOOL</small>
+                   <small class="logo-text-3">.. تعليمنا قيم</small>
                 </div>
             </a>
         </div>
@@ -413,12 +347,12 @@
             <a href="#contact">اتصل بنا</a>
         </div>
 
-        <!-- Admin Capsule Button with Location Icon -->
-        <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
-            <a href="{{ route('admin.dashboard') }}" class="btn-admin" style="display: inline-flex; align-items: center; gap: 12px; background: linear-gradient(280deg, #76b51b 35%, #ffffff 90%); color: #ffffff; padding: 10px 24px; border-radius: 50px; font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); transition: all 0.3s ease; margin-left: 75px;">
+        <!-- Action Area -->
+        <div class="header-actions">
+            <a href="{{ route('admin.dashboard') }}" class="btn-admin">
                 <span>دخول الإدارة</span>
-                <span style="background: #ffffff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 4px;">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="#76b51b" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+                <span class="icon-circle">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="#76b51b" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
                     </svg>
                 </span>

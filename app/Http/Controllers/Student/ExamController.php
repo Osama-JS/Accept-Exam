@@ -112,7 +112,7 @@ class ExamController extends Controller
 
             $questions = $questions->merge($pickedForConfig);
         }
-        $questions = $questions->shuffle();
+        // $questions = $questions->shuffle(); // تم إيقاف الخلط العشوائي الكلي لظهور الأسئلة مجمعة حسب ترتيب المواد المحدد في لوحة التحكم
 
         // حفظ بيانات الجلسة
         session([

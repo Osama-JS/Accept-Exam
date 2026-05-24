@@ -68,6 +68,7 @@ class ExamController extends Controller
             'configs.*.subject_id'              => 'required|exists:subjects,id',
             'configs.*.question_count'          => 'required|integer|min:1',
             'configs.*.marks_per_question'      => 'required|integer|min:1',
+            'configs.*.sort_order'              => 'required|integer|min:1',
             'configs.*.easy_count'              => 'nullable|integer|min:0',
             'configs.*.easy_marks'              => 'nullable|integer|min:1',
             'configs.*.medium_count'            => 'nullable|integer|min:0',
@@ -136,6 +137,7 @@ class ExamController extends Controller
                 'subject_id'         => $config['subject_id'],
                 'question_count'     => $config['question_count'],
                 'marks_per_question' => $config['marks_per_question'],
+                'sort_order'         => (int)($config['sort_order'] ?? 1),
                 'difficulties'       => [
                     'easy'   => [
                         'count' => (int)($config['easy_count'] ?? 0),

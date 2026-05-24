@@ -402,15 +402,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (ctxResults) {
         const resultsCanvas = ctxResults.getContext('2d');
         
-        // تدرج اللون الأخضر للناجحين
+        // تدرج اللون الأخضر (ناجحين) بمظهر عصري وناعم
         const gradPass = resultsCanvas.createLinearGradient(0, 0, 0, 300);
-        gradPass.addColorStop(0, '#8ec924');
-        gradPass.addColorStop(1, '#5f9416');
+        gradPass.addColorStop(0, '#10b981'); // Emerald 500
+        gradPass.addColorStop(1, '#059669'); // Emerald 600
         
-        // تدرج اللون الأحمر للمتعثرين
+        // تدرج اللون الأحمر (متعثرين) بمظهر عصري
         const gradFail = resultsCanvas.createLinearGradient(0, 0, 0, 300);
-        gradFail.addColorStop(0, '#ef4444');
-        gradFail.addColorStop(1, '#c30e14');
+        gradFail.addColorStop(0, '#f43f5e'); // Rose 500
+        gradFail.addColorStop(1, '#e11d48'); // Rose 600
 
         new Chart(ctxResults, {
             type: 'doughnut',
@@ -419,35 +419,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     data: [{{ $stats['passed'] }}, {{ $stats['failed'] }}],
                     backgroundColor: [gradPass, gradFail],
-                    hoverOffset: 8,
-                    borderWidth: 0,
+                    hoverOffset: 12,
+                    borderWidth: 4,
+                    borderColor: '#ffffff',
+                    borderRadius: 6,
                     weight: 1
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '76%',
+                cutout: '78%',
+                layout: { padding: 10 },
                 plugins: {
                     legend: { 
                         position: 'bottom', 
                         labels: { 
-                            font: { family: 'Tajawal', weight: '800', size: 12.5 },
+                            font: { family: 'Tajawal', weight: '800', size: 13 },
                             usePointStyle: true,
                             pointStyle: 'circle',
-                            padding: 20,
-                            color: '#1e293b'
+                            padding: 24,
+                            color: '#334155'
                         } 
+                    },
+                    tooltip: { 
+                        titleFont: { family: 'Tajawal', weight: '900', size: 14 }, 
+                        bodyFont: { family: 'Tajawal', size: 13 },
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        padding: 14,
+                        cornerRadius: 12,
+                        boxPadding: 6,
+                        usePointStyle: true
                     },
                     datalabels: {
                         color: '#fff',
-                        font: { family: 'Tajawal', weight: '900', size: 13 },
+                        font: { family: 'Tajawal', weight: '900', size: 14 },
                         formatter: (value, context) => {
                             let sum = 0;
                             let dataArr = context.chart.data.datasets[0].data;
                             dataArr.map(data => { sum += data; });
                             let percentage = sum > 0 ? Math.round((value / sum) * 100) + '%' : '';
-                            return value > 0 ? value + ' (' + percentage + ')' : '';
+                            return value > 0 ? percentage : '';
                         },
                         display: 'auto'
                     }
@@ -456,65 +468,78 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 2. مخطط الأعمدة لأداء الطلاب حسب الصف مع تدرجات لونية رأسية مذهلة
+    // 2. مخطط الأعمدة لأداء الطلاب حسب الصف بتصميم فاخر
     const ctxGrades = document.getElementById('gradesChart');
     if (ctxGrades) {
         const gradesCanvas = ctxGrades.getContext('2d');
         
-        // تدرجات الأعمدة الخضراء والحمراء
-        const barGradPass = gradesCanvas.createLinearGradient(0, 0, 0, 250);
-        barGradPass.addColorStop(0, '#8ec924');
-        barGradPass.addColorStop(1, 'rgba(118,181,27,0.3)');
+        const barGradPass = gradesCanvas.createLinearGradient(0, 0, 0, 350);
+        barGradPass.addColorStop(0, '#34d399'); // Emerald 400
+        barGradPass.addColorStop(1, 'rgba(16, 185, 129, 0.2)'); // Emerald 500 transparent
 
-        const barGradFail = gradesCanvas.createLinearGradient(0, 0, 0, 250);
-        barGradFail.addColorStop(0, '#ef4444');
-        barGradFail.addColorStop(1, 'rgba(195,14,20,0.3)');
+        const barGradFail = gradesCanvas.createLinearGradient(0, 0, 0, 350);
+        barGradFail.addColorStop(0, '#fb7185'); // Rose 400
+        barGradFail.addColorStop(1, 'rgba(244, 63, 94, 0.2)'); // Rose 500 transparent
 
         new Chart(ctxGrades, {
             type: 'bar',
             data: {
-                labels: {! json_encode($resultsByGrade->pluck('name')) !!},
+                labels: {!! json_encode($resultsByGrade->pluck('name')) !!},
                 datasets: [
                     {
                         label: 'ناجحين',
-                        data: {! json_encode($resultsByGrade->pluck('passed')) !!},
+                        data: {!! json_encode($resultsByGrade->pluck('passed')) !!},
                         backgroundColor: barGradPass,
-                        borderRadius: 8,
+                        borderColor: '#10b981',
+                        borderWidth: { top: 2, right: 2, left: 2, bottom: 0 },
+                        borderRadius: 10,
                         borderSkipped: false,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.5
+                        barPercentage: 0.5,
+                        categoryPercentage: 0.6,
+                        hoverBackgroundColor: '#10b981'
                     },
                     {
                         label: 'متعثرين',
-                        data: {! json_encode($resultsByGrade->pluck('failed')) !!},
+                        data: {!! json_encode($resultsByGrade->pluck('failed')) !!},
                         backgroundColor: barGradFail,
-                        borderRadius: 8,
+                        borderColor: '#f43f5e',
+                        borderWidth: { top: 2, right: 2, left: 2, bottom: 0 },
+                        borderRadius: 10,
                         borderSkipped: false,
-                        barPercentage: 0.6,
-                        categoryPercentage: 0.5
+                        barPercentage: 0.5,
+                        categoryPercentage: 0.6,
+                        hoverBackgroundColor: '#f43f5e'
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        grid: { color: 'rgba(226, 232, 240, 0.5)', drawBorder: false },
+                        grid: { 
+                            color: 'rgba(226, 232, 240, 0.8)', 
+                            drawBorder: false,
+                            borderDash: [6, 6] 
+                        },
                         ticks: { 
                             precision: 0, 
-                            font: { family: 'Tajawal', weight: '700', size: 11 }, 
+                            font: { family: 'Tajawal', weight: '700', size: 12 }, 
                             color: '#64748b',
-                            padding: 8
+                            padding: 12
                         } 
                     },
                     x: { 
                         grid: { display: false },
                         ticks: { 
-                            font: { family: 'Tajawal', weight: '850', size: 12 }, 
-                            color: '#1e293b',
-                            padding: 8
+                            font: { family: 'Tajawal', weight: '850', size: 13 }, 
+                            color: '#334155',
+                            padding: 10
                         } 
                     }
                 },
@@ -522,27 +547,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     legend: { 
                         position: 'top', 
                         labels: { 
-                            font: { family: 'Tajawal', weight: '800', size: 12.5 },
+                            font: { family: 'Tajawal', weight: '800', size: 13 },
                             usePointStyle: true,
                             pointStyle: 'circle',
-                            color: '#1e293b',
-                            padding: 16
+                            color: '#334155',
+                            padding: 20
                         } 
                     },
                     tooltip: { 
-                        titleFont: { family: 'Tajawal', weight: '900' }, 
-                        bodyFont: { family: 'Tajawal' },
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        padding: 12,
-                        cornerRadius: 10
+                        titleFont: { family: 'Tajawal', weight: '900', size: 14 }, 
+                        bodyFont: { family: 'Tajawal', size: 13 },
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        padding: 14,
+                        cornerRadius: 12,
+                        boxPadding: 6,
+                        usePointStyle: true
                     },
                     datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#64748b',
-                        font: { family: 'Tajawal', size: 11, weight: '850' },
-                        formatter: (value) => value > 0 ? value : '',
-                        offset: 4
+                        display: false // إخفاء الأرقام من فوق الأعمدة لتصميم أنظف
                     }
                 }
             }

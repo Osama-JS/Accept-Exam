@@ -35,7 +35,7 @@ class Exam extends Model
 
     public function subjectConfigs(): HasMany
     {
-        return $this->hasMany(ExamSubjectConfig::class);
+        return $this->hasMany(ExamSubjectConfig::class)->orderBy('sort_order', 'asc');
     }
 
     public function studentExams(): HasMany

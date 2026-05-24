@@ -46,6 +46,17 @@
         border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); background: #fff;
     }
     
+    /* إخفاء أسهم الأرقام لتوفير مساحة */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    
     /* ── مجموعة الحقول مع الأيقونات (Input with Icon Group) ── */
     .input-icon-group {
         position: relative;
@@ -85,7 +96,19 @@
     .btn-remove-source:hover { background: #ef4444; color: #fff; }
 
     .source-inputs {
-        display: grid; grid-template-columns: 1fr 1.3fr 0.8fr 0.8fr; gap: 14px;
+        display: grid; grid-template-columns: 1fr 1.3fr 0.8fr 0.8fr 0.6fr; gap: 10px;
+    }
+    .source-inputs .input-icon-group i {
+        right: 10px;
+        font-size: 14px;
+    }
+    .source-inputs .input-icon-group .form-control {
+        padding-right: 30px !important;
+        padding-left: 8px !important;
+        text-align: center;
+    }
+    @media (max-width: 768px) {
+        .source-inputs { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 576px) {
         .source-inputs { grid-template-columns: 1fr; }
@@ -266,6 +289,14 @@
                                     <input type="number" name="configs[0][marks_per_question]" class="form-control" value="1" min="1" required>
                                 </div>
                             </div>
+                            
+                            <div>
+                                <label>الترتيب *</label>
+                                <div class="input-icon-group">
+                                    <i class="bi bi-sort-numeric-down"></i>
+                                    <input type="number" name="configs[0][sort_order]" class="form-control" value="1" min="1" required>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- خيارات متقدمة للتوزيع -->
@@ -437,6 +468,14 @@
                         <input type="number" name="configs[${configIndex}][marks_per_question]" class="form-control" value="1" min="1" required>
                     </div>
                 </div>
+                
+                <div>
+                    <label>الترتيب *</label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-sort-numeric-down"></i>
+                        <input type="number" name="configs[${configIndex}][sort_order]" class="form-control" value="${configIndex + 1}" min="1" required>
+                    </div>
+                </div>
             </div>
 
             <!-- خيارات متقدمة للتوزيع -->
@@ -567,8 +606,7 @@
 
         if (!subjectId || !targetGradeId) {
             card.querySelectorAll('.stats-badge').forEach(b => {
-                b.textContent = 'متوفر: -';
-                b.className = 'stats-badge text-muted';
+                b.innerHTML = '<span class="text-muted">متوفر: -</span>';
                 delete b.dataset.max;
             });
             delete selectEl.dataset.total;
@@ -598,8 +636,12 @@
 
                 const setStat = (selector, count, colorClass) => {
                     const el = card.querySelector(selector);
-                    el.innerHTML = `<span class="${colorClass}">متوفر: ${count}</span>`;
-                    el.dataset.max = count;
+                    if (el) {
+                        el.innerHTML = `<span class="${colorClass}">متوفر: ${count}</span>`;
+                        el.dataset.max = count;
+                    } else {
+                        console.warn("Element not found for selector:", selector, "inside card:", card);
+                    }
                 };
 
                 setStat('.stats-easy', stats.difficulties.easy, 'text-success');

@@ -169,7 +169,10 @@
                             <div class="source-sublbl"><i class="bi bi-layers-half"></i> {{ $config->grade->name ?? 'غير محدد' }}</div>
                         </div>
                     </div>
-                    <span class="badge badge-info" style="border-radius: 8px; font-weight: 700; padding: 6px 12px;">{{ $config->question_count }} سؤال</span>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="badge" style="border-radius: 8px; font-weight: 700; padding: 6px 12px; background: #f1f5f9; color: #475569; font-size: 12px;"><i class="bi bi-sort-numeric-down"></i> الترتيب: {{ $config->sort_order }}</span>
+                        <span class="badge badge-info" style="border-radius: 8px; font-weight: 700; padding: 6px 12px;">{{ $config->question_count }} سؤال</span>
+                    </div>
                 </div>
             @empty
                 <div style="text-align: center; padding: 24px; color: var(--text-muted);">لا توجد مصادر محددة.</div>
