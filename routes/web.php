@@ -46,6 +46,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Questions
         Route::delete('questions/bulk-destroy', [QuestionController::class, 'bulkDestroy'])
             ->name('questions.bulk-destroy');
+        Route::get('questions/template', [QuestionController::class, 'downloadTemplate'])
+            ->name('questions.template');
+        Route::post('questions/import', [QuestionController::class, 'import'])
+            ->name('questions.import');
         Route::resource('questions', QuestionController::class)->except(['show']);
         Route::get('questions/by-subject/{subject}', [QuestionController::class, 'bySubject'])
             ->name('questions.by-subject');

@@ -438,6 +438,128 @@
         background: rgba(255, 255, 255, 0.25);
         color: #ffffff;
     }
+
+    /* ── Modal الاستيراد من Excel ── */
+    .import-modal-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(15,23,42,0.65); backdrop-filter: blur(6px);
+        z-index: 2000; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.28s ease;
+    }
+    .import-modal-overlay.show { display: flex; opacity: 1; }
+    .import-modal-box {
+        background: #fff; border-radius: 24px; width: 94%; max-width: 580px;
+        box-shadow: 0 32px 64px -12px rgba(0,0,0,0.18), 0 0 0 1px rgba(118,181,27,0.12);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        overflow: hidden;
+    }
+    .import-modal-overlay.show .import-modal-box { transform: translateY(0) scale(1); }
+
+    .import-modal-header {
+        background: linear-gradient(135deg,#629716,#4a7511);
+        padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .import-modal-header h3 {
+        margin: 0; font-size: 16px; font-weight: 800; color: #fff;
+        display: flex; align-items: center; gap: 10px;
+    }
+    .import-modal-close {
+        background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+        width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+        color: #fff; cursor: pointer; transition: all .2s; font-size: 18px;
+    }
+    .import-modal-close:hover { background: rgba(255,255,255,0.3); }
+
+    .import-modal-body { padding: 28px; display: flex; flex-direction: column; gap: 22px; }
+
+    /* بطاقة تحميل القالب */
+    .template-download-card {
+        background: linear-gradient(135deg,#f0fdf4,#dcfce7);
+        border: 1.5px dashed #4ade80; border-radius: 16px;
+        padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        transition: all .2s;
+    }
+    .template-download-card:hover { border-color: #629716; background: linear-gradient(135deg,#e8fdd0,#d4faa4); }
+    .template-info h4 { margin: 0 0 4px; font-size: 14px; font-weight: 800; color: #166534; }
+    .template-info p  { margin: 0; font-size: 12px; color: #4ade80; color: #15803d; font-weight: 600; }
+    .btn-download-template {
+        background: #629716; color: #fff; border: none; border-radius: 12px;
+        padding: 10px 20px; font-size: 13px; font-weight: 700;
+        display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+        text-decoration: none; white-space: nowrap; transition: all .2s;
+        box-shadow: 0 4px 12px rgba(98,151,22,0.3);
+    }
+    .btn-download-template:hover { background: #4a7511; transform: translateY(-1px); color: #fff; }
+
+    /* Divider */
+    .import-divider {
+        display: flex; align-items: center; gap: 12px; color: #94a3b8; font-size: 12px; font-weight: 700;
+    }
+    .import-divider::before, .import-divider::after {
+        content: ''; flex: 1; height: 1px; background: #e2e8f0;
+    }
+
+    /* حقول الصف والمادة */
+    .import-selects-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .import-field-group label {
+        display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;
+    }
+    .import-select {
+        width: 100%; padding: 10px 14px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+        font-size: 13px; color: #1e293b; background: #f8fafc; outline: none; cursor: pointer;
+        transition: border-color .2s, box-shadow .2s; appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: left 12px center; background-size: 10px;
+    }
+    .import-select:focus { border-color: #629716; box-shadow: 0 0 0 3px rgba(98,151,22,0.1); background-color: #fff; }
+
+    /* منطقة رفع الملف */
+    .drop-zone {
+        border: 2px dashed #cbd5e0; border-radius: 14px; padding: 30px 20px;
+        text-align: center; cursor: pointer; transition: all .25s; background: #f8fafc;
+        position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+        border-color: #629716; background: #f0fdf4;
+    }
+    .drop-zone input[type=file] {
+        position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-zone-icon { font-size: 38px; color: #cbd5e0; margin-bottom: 10px; transition: color .2s; }
+    .drop-zone:hover .drop-zone-icon, .drop-zone.drag-over .drop-zone-icon { color: #629716; }
+    .drop-zone-text { font-size: 13.5px; font-weight: 700; color: #475569; margin-bottom: 4px; }
+    .drop-zone-sub  { font-size: 11.5px; color: #94a3b8; font-weight: 600; }
+    .drop-zone.has-file { border-color: #629716; background: #f0fdf4; }
+    .drop-zone.has-file .drop-zone-icon { color: #629716; }
+    .selected-file-name {
+        font-size: 12px; font-weight: 700; color: #629716; margin-top: 8px;
+        display: none; align-items: center; justify-content: center; gap: 6px;
+    }
+    .drop-zone.has-file .selected-file-name { display: flex; }
+
+    /* زر الاستيراد الرئيسي */
+    .btn-do-import {
+        width: 100%; padding: 13px; background: linear-gradient(135deg,#629716,#4a7511);
+        color: #fff; border: none; border-radius: 14px; font-size: 14px; font-weight: 800;
+        cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 10px;
+        box-shadow: 0 6px 20px rgba(98,151,22,0.25);
+    }
+    .btn-do-import:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(98,151,22,0.35); }
+    .btn-do-import:disabled { opacity: .7; cursor: not-allowed; transform: none; }
+
+    /* نتائج الاستيراد */
+    .import-result {
+        display: none; border-radius: 14px; padding: 18px 20px; margin-top: 4px;
+        animation: slideDownContent .3s ease;
+    }
+    .import-result.success-result { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+    .import-result.error-result   { background: #fff7ed; border: 1.5px solid #fed7aa; }
+    .import-result .result-title  { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .import-result.success-result .result-title { color: #166534; }
+    .import-result.error-result .result-title   { color: #9a3412; }
+    .error-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; }
+    .error-list li { font-size: 12px; color: #c2410c; background: #fff; border: 1px solid #fed7aa; border-radius: 8px; padding: 7px 12px; font-weight: 600; }
 </style>
 @endpush
 
@@ -458,9 +580,16 @@
                 </p>
             </div>
         </div>
-        <a href="{{ route('admin.questions.create') }}" class="btn btn-primary" style="background: linear-gradient(135deg, #76b51b, #5f9416); border: none; box-shadow: 0 6px 20px rgba(118, 181, 27, 0.25); font-weight: 700; border-radius: 12px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 8px; height: 38px; font-size: 13.5px;">
-            <i class="bi bi-plus-lg"></i> سؤال جديد
-        </a>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" id="openImportModalBtn"
+                style="background: #fff; border: 1.5px solid #629716; color: #629716; font-weight: 700; border-radius: 12px; padding: 8px 16px; display: inline-flex; align-items: center; gap: 8px; height: 38px; font-size: 13px; cursor: pointer; transition: all .2s;"
+                onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='#fff'">
+                <i class="bi bi-file-earmark-arrow-up" style="font-size: 15px;"></i> استيراد من Excel
+            </button>
+            <a href="{{ route('admin.questions.create') }}" class="btn btn-primary" style="background: linear-gradient(135deg, #76b51b, #5f9416); border: none; box-shadow: 0 6px 20px rgba(118, 181, 27, 0.25); font-weight: 700; border-radius: 12px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 8px; height: 38px; font-size: 13.5px;">
+                <i class="bi bi-plus-lg"></i> سؤال جديد
+            </a>
+        </div>
     </div>
 
     <!-- Row 2: Basic Filters & Toggles -->
@@ -729,6 +858,102 @@
         {{ $questions->appends(request()->query())->links() }}
     </div>
     @endif
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════════
+     Modal: استيراد الأسئلة من Excel
+═══════════════════════════════════════════════════════════════ --}}
+<div class="import-modal-overlay" id="importModalOverlay">
+    <div class="import-modal-box">
+
+        {{-- رأس الـ Modal --}}
+        <div class="import-modal-header">
+            <h3>
+                <i class="bi bi-file-earmark-excel-fill" style="font-size: 20px;"></i>
+                استيراد الأسئلة من Excel
+            </h3>
+            <button class="import-modal-close" id="closeImportModal" type="button">&#x2715;</button>
+        </div>
+
+        <div class="import-modal-body">
+
+            {{-- 1. تحميل القالب --}}
+            <div class="template-download-card" style="margin-bottom: 8px;">
+                <div class="template-info">
+                    <h4><i class="bi bi-download"></i> نموذج التعبئة الجاهز</h4>
+                    <p>حمّل القالب واملأه بالأسئلة ثم ارفعه أدناه</p>
+                </div>
+                <a href="{{ route('admin.questions.template') }}" class="btn-download-template" download>
+                    <i class="bi bi-file-earmark-excel"></i> تحميل القالب
+                </a>
+            </div>
+
+            {{-- دليل أرقام الأنواع والصعوبة --}}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; font-size: 11.5px; color: #475569; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <strong style="color: #1e293b; display: block; margin-bottom: 4px;">📌 أنواع الأسئلة (العمود ب):</strong>
+                    <ul style="margin: 0; padding-right: 16px; list-style-type: disc;">
+                        <li><b>1</b> = اختيار من متعدد</li>
+                        <li><b>2</b> = صح أو خطأ</li>
+                        <li><b>3</b> = مقالي</li>
+                        <li><b>4</b> = توصيل</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong style="color: #1e293b; display: block; margin-bottom: 4px;">📌 مستويات الصعوبة (العمود ج):</strong>
+                    <ul style="margin: 0; padding-right: 16px; list-style-type: disc;">
+                        <li><b>1</b> = سهل</li>
+                        <li><b>2</b> = متوسط</li>
+                        <li><b>3</b> = صعب</li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- Divider --}}
+            <div class="import-divider">اختر الصف والمادة ثم ارفع الملف</div>
+
+            {{-- 2. اختيار الصف والمادة --}}
+            <div class="import-selects-row">
+                <div class="import-field-group">
+                    <label for="importGradeSelect"><i class="bi bi-mortarboard"></i> الصف الدراسي <span style="color:#ef4444">*</span></label>
+                    <select id="importGradeSelect" class="import-select">
+                        <option value="">— اختر الصف —</option>
+                        @foreach($grades ?? [] as $g)
+                            <option value="{{ $g->id }}">{{ $g->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="import-field-group">
+                    <label for="importSubjectSelect"><i class="bi bi-book"></i> المادة الدراسية <span style="color:#ef4444">*</span></label>
+                    <select id="importSubjectSelect" class="import-select" disabled>
+                        <option value="">— اختر الصف أولاً —</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- 3. منطقة رفع الملف --}}
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv">
+                <div class="drop-zone-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                <div class="drop-zone-text">اسحب ملف Excel هنا أو انقر للاختيار</div>
+                <div class="drop-zone-sub">الصيغ المقبولة: .xlsx &bull; .xls &bull; .csv &bull; الحد الأقصى: 5 MB</div>
+                <div class="selected-file-name" id="selectedFileName">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                    <span id="fileNameText"></span>
+                </div>
+            </div>
+
+            {{-- 4. زر التنفيذ --}}
+            <button type="button" class="btn-do-import" id="doImportBtn" disabled>
+                <i class="bi bi-upload"></i>
+                <span id="importBtnText">استيراد الأسئلة</span>
+            </button>
+
+            {{-- 5. نتائج الاستيراد --}}
+            <div class="import-result" id="importResult"></div>
+
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -1044,4 +1269,179 @@
         });
     }
 </script>
+
+{{-- ═════ JavaScript الخاص بـ Modal الاستيراد ═════ --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const overlay        = document.getElementById('importModalOverlay');
+    const openBtn        = document.getElementById('openImportModalBtn');
+    const closeBtn       = document.getElementById('closeImportModal');
+    const gradeSelect    = document.getElementById('importGradeSelect');
+    const subjectSelect  = document.getElementById('importSubjectSelect');
+    const dropZone       = document.getElementById('dropZone');
+    const fileInput      = document.getElementById('importFileInput');
+    const doImportBtn    = document.getElementById('doImportBtn');
+    const importBtnText  = document.getElementById('importBtnText');
+    const importResult   = document.getElementById('importResult');
+    const selectedFN     = document.getElementById('selectedFileName');
+    const fileNameText   = document.getElementById('fileNameText');
+
+    let selectedFile = null;
+
+    // ── فتح وإغلاق الـ Modal ──
+    openBtn.addEventListener('click', () => {
+        overlay.style.display = 'flex';
+        requestAnimationFrame(() => overlay.classList.add('show'));
+    });
+    function closeModal() {
+        overlay.classList.remove('show');
+        setTimeout(() => { overlay.style.display = 'none'; }, 280);
+    }
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // ── تحميل المواد عند اختيار الصف ──
+    gradeSelect.addEventListener('change', function () {
+        const gradeId = this.value;
+        subjectSelect.disabled = true;
+        subjectSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+        checkReadyToImport();
+
+        if (!gradeId) {
+            subjectSelect.innerHTML = '<option value="">— اختر الصف أولاً —</option>';
+            return;
+        }
+
+        fetch(`{{ url('admin/grades') }}/${gradeId}/subjects`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            subjectSelect.innerHTML = '<option value="">— اختر المادة —</option>';
+            (data.subjects || data || []).forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name;
+                subjectSelect.appendChild(opt);
+            });
+            subjectSelect.disabled = false;
+            checkReadyToImport();
+        })
+        .catch(() => {
+            subjectSelect.innerHTML = '<option value="">حدث خطأ في التحميل</option>';
+        });
+    });
+
+    subjectSelect.addEventListener('change', checkReadyToImport);
+
+    // ── منطقة السحب والإفلات ──
+    dropZone.addEventListener('dragover',  (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) setFile(file);
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files[0]) setFile(fileInput.files[0]);
+    });
+
+    function setFile(file) {
+        const allowed = ['xlsx','xls','csv'];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!allowed.includes(ext)) {
+            showResult(false, 0, ['نوع الملف غير مقبول. يُرجى رفع ملف xlsx أو xls أو csv فقط.'], 0);
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            showResult(false, 0, ['حجم الملف يتجاوز 5 ميجابايت. يُرجى ضغط الملف وإعادة المحاولة.'], 0);
+            return;
+        }
+        selectedFile = file;
+        fileNameText.textContent = file.name;
+        dropZone.classList.add('has-file');
+        importResult.style.display = 'none';
+        checkReadyToImport();
+    }
+
+    function checkReadyToImport() {
+        const ready = gradeSelect.value && subjectSelect.value && selectedFile;
+        doImportBtn.disabled = !ready;
+    }
+
+    // ── تنفيذ الاستيراد ──
+    doImportBtn.addEventListener('click', function () {
+        if (!gradeSelect.value || !subjectSelect.value || !selectedFile) return;
+
+        // حالة التحميل
+        doImportBtn.disabled = true;
+        importBtnText.innerHTML = '<span class="spinner" style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></span> جاري الاستيراد...';
+        importResult.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('grade_id',   gradeSelect.value);
+        formData.append('subject_id', subjectSelect.value);
+        formData.append('file',       selectedFile);
+        formData.append('_token',     '{{ csrf_token() }}');
+
+        fetch('{{ route("admin.questions.import") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            importBtnText.innerHTML = '<i class="bi bi-upload"></i> استيراد الأسئلة';
+            doImportBtn.disabled = false;
+
+            if (data.success) {
+                showResult(true, data.imported, data.errors, data.errors_count);
+                // إعادة تحميل قائمة الأسئلة
+                if (data.imported > 0) {
+                    setTimeout(() => fetchFilteredQuestions(), 600);
+                }
+            } else {
+                const errs = data.errors || (data.message ? [data.message] : ['حدث خطأ غير متوقع.']);
+                showResult(false, 0, errs, errs.length);
+            }
+        })
+        .catch(() => {
+            importBtnText.innerHTML = '<i class="bi bi-upload"></i> استيراد الأسئلة';
+            doImportBtn.disabled = false;
+            showResult(false, 0, ['فشل الاتصال بالخادم. تحقق من اتصالك وأعد المحاولة.'], 1);
+        });
+    });
+
+    // ── عرض النتائج ──
+    function showResult(success, imported, errors, errorsCount) {
+        importResult.style.display = 'block';
+        importResult.className = 'import-result ' + (success && errorsCount === 0 ? 'success-result' : 'error-result');
+
+        let html = '';
+        if (success && imported > 0) {
+            html += `<div class="result-title"><i class="bi bi-check-circle-fill" style="color:#16a34a"></i> تم الاستيراد بنجاح</div>`;
+            html += `<p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#166534;">✅ تم إضافة <strong>${imported}</strong> سؤال بنجاح إلى بنك الأسئلة.</p>`;
+        }
+        if (errorsCount > 0) {
+            html += `<div class="result-title" style="margin-top:${imported>0?'12px':'0'};"><i class="bi bi-exclamation-triangle-fill" style="color:#ea580c"></i> تنبيهات الاستيراد (${errorsCount})</div>`;
+            html += `<ul class="error-list">`;
+            errors.forEach(err => { html += `<li><i class="bi bi-x-circle" style="color:#ef4444;margin-left:4px;"></i>${err}</li>`; });
+            html += `</ul>`;
+        }
+        if (!success && imported === 0 && errorsCount === 0) {
+            html += `<div class="result-title"><i class="bi bi-exclamation-circle-fill" style="color:#ea580c"></i> لا توجد بيانات</div>`;
+            html += `<p style="margin:0;font-size:13px;color:#9a3412;font-weight:600;">لم يتم العثور على أي أسئلة في الملف المرفوع.</p>`;
+        }
+        importResult.innerHTML = html;
+        importResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+});
+</script>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 @endpush

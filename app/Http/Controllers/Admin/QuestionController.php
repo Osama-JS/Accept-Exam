@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\Question;
 use App\Models\Subject;
+use App\Imports\QuestionsImport;
+use App\Exports\QuestionsTemplateExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
@@ -201,5 +204,64 @@ class QuestionController extends Controller
     public function bySubject(Subject $subject)
     {
         return response()->json($subject->questions()->count());
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // تحميل قالب Excel الجاهز للأسئلة
+    // ─────────────────────────────────────────────────────────────────
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new QuestionsTemplateExport(),
+            'نموذج-استيراد-الأسئلة.xlsx'
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // معالجة ملف Excel المرفوع واستيراد الأسئلة
+    // ─────────────────────────────────────────────────────────────────
+    public function import(Request $request)
+    {
+        $request->validate([
+            'grade_id'   => 'required|exists:grades,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'file'       => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'grade_id.required'   => 'يجب اختيار الصف الدراسي.',
+            'grade_id.exists'     => 'الصف المختار غير موجود.',
+            'subject_id.required' => 'يجب اختيار المادة الدراسية.',
+            'subject_id.exists'   => 'المادة المختارة غير موجودة.',
+            'file.required'       => 'يجب رفع ملف Excel.',
+            'file.mimes'          => 'يجب أن يكون الملف بصيغة xlsx أو xls أو csv.',
+            'file.max'            => 'يجب أن لا يتجاوز حجم الملف 5 ميجابايت.',
+        ]);
+
+        $importer = new QuestionsImport(
+            (int) $request->grade_id,
+            (int) $request->subject_id
+        );
+
+        try {
+            Excel::import($importer, $request->file('file'));
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'فشل التحقق من صحة الملف.',
+                'errors'  => array_map(fn($f) => $f->errors()->first(), $e->failures()),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء قراءة الملف: ' . $e->getMessage(),
+                'errors'  => [],
+            ], 500);
+        }
+
+        return response()->json([
+            'success'       => true,
+            'imported'      => $importer->importedCount,
+            'errors'        => $importer->errors,
+            'errors_count'  => count($importer->errors),
+        ]);
     }
 }
