@@ -248,26 +248,45 @@
         @csrf
 
         @foreach($questions as $i => $question)
+        @php
+            $isEnglish = false;
+            if (isset($question['subject']['name'])) {
+                $subjectName = $question['subject']['name'];
+                if (str_contains($subjectName, 'إنجليزية') || str_contains($subjectName, 'انجليزية') || stripos($subjectName, 'english') !== false) {
+                    $isEnglish = true;
+                }
+            }
+        @endphp
         <div class="question-wizard {{ $i === 0 ? 'active' : '' }}" id="step-{{ $i }}">
-            <div class="question-card">
-                <div class="question-num">السؤال {{ $i + 1 }} من {{ count($questions) }}</div>
+            <div class="question-card" style="{{ $isEnglish ? 'direction: ltr; text-align: left;' : '' }}">
+                <div class="question-num">
+                    @if($isEnglish)
+                        Question {{ $i + 1 }} of {{ count($questions) }}
+                    @else
+                        السؤال {{ $i + 1 }} من {{ count($questions) }}
+                    @endif
+                </div>
                 <div class="question-text">{{ $question['text'] }}</div>
                 
                 <div class="choices-grid">
                     @if($question['type'] === 'essay')
                         <!-- السؤال المقالي -->
                         <div class="essay-container" style="width: 100%;">
-                            <label class="ws-label" style="font-weight: 800; color: #64748b; margin-bottom: 12px; display: block; font-size: 14.5px;">أدخل إجابتك النصية هنا:</label>
+                            <label class="ws-label" style="font-weight: 800; color: #64748b; margin-bottom: 12px; display: block; font-size: 14.5px;">
+                                {{ $isEnglish ? 'Enter your text answer here:' : 'أدخل إجابتك النصية هنا:' }}
+                            </label>
                             <textarea name="answers[{{ $question['id'] }}]" 
                                       class="ws-textarea essay-textarea" 
-                                      placeholder="اكتب إجابتك هنا بدقة ووضوح..." 
-                                      style="width: 100%; min-height: 160px; padding: 18px 24px; border: 2px solid #e2e8f0; border-radius: 16px; font-family: inherit; font-size: 15.5px; font-weight: 600; line-height: 1.6; color: #334155; transition: all 0.2s; resize: vertical;" 
+                                      placeholder="{{ $isEnglish ? 'Write your answer here clearly...' : 'اكتب إجابتك هنا بدقة ووضوح...' }}" 
+                                      style="width: 100%; min-height: 160px; padding: 18px 24px; border: 2px solid #e2e8f0; border-radius: 16px; font-family: inherit; font-size: 15.5px; font-weight: 600; line-height: 1.6; color: #334155; transition: all 0.2s; resize: vertical; {{ $isEnglish ? 'direction: ltr; text-align: left;' : '' }}" 
                                       oninput="onEssayInput({{ $i }}, {{ $question['id'] }}, this)"></textarea>
                         </div>
                     @elseif($question['type'] === 'matching')
                         <!-- سؤال التوصيل -->
                         <div class="matching-container" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
-                            <div style="font-size: 14.5px; font-weight: 850; color: #64748b; margin-bottom: 8px;">صل عناصر العمود الأيمن بما يناسبها من العمود الأيسر:</div>
+                            <div style="font-size: 14.5px; font-weight: 850; color: #64748b; margin-bottom: 8px;">
+                                {{ $isEnglish ? 'Match the items on the left with their correct matches on the right:' : 'صل عناصر العمود الأيمن بما يناسبها من العمود الأيسر:' }}
+                            </div>
                             @php
                                 $choices = $question['choices'];
                                 $leftTexts = collect($choices)->map(function($c) {
@@ -281,19 +300,19 @@
                                     $parts = explode('|', $choice['text']);
                                     $rightText = trim($parts[0] ?? '');
                                 @endphp
-                                <div class="matching-row-item" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 24px; border: 2px solid #e2e8f0; border-radius: 16px; background: #fff; transition: all 0.2s;">
+                                <div class="matching-row-item" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 24px; border: 2px solid #e2e8f0; border-radius: 16px; background: #fff; transition: all 0.2s; {{ $isEnglish ? 'direction: ltr;' : '' }}">
                                     <div class="right-item" style="font-size: 15.5px; font-weight: 700; color: #0f172a; width: 45%;">
-                                        <span class="choice-letter" style="display: inline-flex; margin-left: 8px; font-size: 13px; width: 28px; height: 28px; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; color: #64748b; font-weight: 800;">{{ $ci + 1 }}</span>
+                                        <span class="choice-letter" style="display: inline-flex; {{ $isEnglish ? 'margin-right: 8px;' : 'margin-left: 8px;' }} font-size: 13px; width: 28px; height: 28px; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 50%; color: #64748b; font-weight: 800;">{{ $ci + 1 }}</span>
                                         {{ $rightText }}
                                     </div>
                                     <div style="color: var(--primary); font-weight: 800;"><i class="bi bi-arrow-left-right"></i></div>
                                     <div class="left-dropdown" style="width: 45%;">
                                         <select name="answers[{{ $question['id'] }}][{{ $choice['id'] }}]" 
                                                 class="ws-select matching-select" 
-                                                style="width: 100%; padding: 10px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 14.5px; font-weight: 600; color: #334155; cursor: pointer; transition: border-color 0.2s; background: #fff;"
+                                                style="width: 100%; padding: 10px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 14.5px; font-weight: 600; color: #334155; cursor: pointer; transition: border-color 0.2s; background: #fff; {{ $isEnglish ? 'direction: ltr;' : '' }}"
                                                 onchange="onMatchingSelected({{ $i }}, {{ $question['id'] }}, this)"
                                                 required>
-                                            <option value="">-- اختر التطابق المناسب --</option>
+                                            <option value="">{{ $isEnglish ? '-- Choose the correct match --' : '-- اختر التطابق المناسب --' }}</option>
                                             @foreach($leftTexts as $lt)
                                                 <option value="{{ $lt }}">{{ $lt }}</option>
                                             @endforeach
@@ -304,7 +323,9 @@
                         </div>
                     @else
                         <!-- اختيار من متعدد أو صح أو خطأ -->
-                        @php $letters = ['أ', 'ب', 'ج', 'د', 'هـ', 'و']; @endphp
+                        @php 
+                            $letters = $isEnglish ? ['A', 'B', 'C', 'D', 'E', 'F'] : ['أ', 'ب', 'ج', 'د', 'هـ', 'و']; 
+                        @endphp
                         @foreach($question['choices'] as $ci => $choice)
                         <label class="choice-label" id="lbl-{{ $question['id'] }}-{{ $choice['id'] }}">
                             <input type="radio" name="answers[{{ $question['id'] }}]" 

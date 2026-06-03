@@ -25,29 +25,45 @@ class ExamController extends Controller
     {
         abort_if(!$exam->is_active, 403, 'هذا الاختبار غير متاح حالياً.');
 
-        $data = $request->validate([
-            'name'               => 'required|string|max:100',
-            'previous_school'    => 'required|string|max:200',
-            'last_grade_average' => 'required|numeric|min:0|max:100',
-            'guardian_name'      => 'required|string|max:100',
-            'guardian_phone'     => 'required|string|max:20',
-        ], [
-            'name.required'               => 'اسم الطالب مطلوب.',
-            'previous_school.required'    => 'اسم المدرسة السابقة مطلوب.',
-            'last_grade_average.required' => 'المعدل مطلوب.',
-            'last_grade_average.numeric'  => 'المعدل يجب أن يكون رقماً.',
-            'guardian_name.required'      => 'اسم ولي الأمر مطلوب.',
-            'guardian_phone.required'     => 'رقم هاتف ولي الأمر مطلوب.',
+        // تحويل المدخلات إلى أرقام إنجليزية لغرض التحقق من القيم فقط
+        $averageInput = $request->input('last_grade_average');
+        $normalizedAverage = null;
+        if ($averageInput !== null) {
+            $arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٫', '，'];
+            $englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '.'];
+            $normalizedAverage = str_replace($arabicDigits, $englishDigits, $averageInput);
+        }
+
+        $request->merge([
+            'last_grade_average_validated' => $normalizedAverage,
         ]);
 
-        // إنشاء بيانات الطالب
+        $data = $request->validate([
+            'name'                         => 'required|string|max:100',
+            'previous_school'              => 'required|string|max:200',
+            'last_grade_average_validated' => 'required|numeric|min:0|max:100',
+            'guardian_name'                => 'required|string|max:100',
+            'guardian_phone'               => ['required', 'string', 'max:20', 'regex:/^[0-9\x{0660}-\x{0669}\s\+\-\(\)]+$/u'],
+        ], [
+            'name.required'                         => 'اسم الطالب مطلوب.',
+            'previous_school.required'              => 'اسم المدرسة السابقة مطلوب.',
+            'last_grade_average_validated.required' => 'المعدل مطلوب.',
+            'last_grade_average_validated.numeric'  => 'المعدل يجب أن يكون رقماً.',
+            'last_grade_average_validated.min'      => 'المعدل يجب ألا يقل عن 0.',
+            'last_grade_average_validated.max'      => 'المعدل يجب ألا يزيد عن 100.',
+            'guardian_name.required'                => 'اسم ولي الأمر مطلوب.',
+            'guardian_phone.required'               => 'رقم هاتف ولي الأمر مطلوب.',
+            'guardian_phone.regex'                  => 'رقم هاتف ولي الأمر غير صحيح (يجب أن يحتوي على أرقام فقط).',
+        ]);
+
+        // إنشاء بيانات الطالب بالقيم الأصلية (لحفظ لغة الأرقام المدخلة كما هي)
         $student = Student::create([
             'name'               => $data['name'],
             'applying_grade_id'  => $exam->grade_id,
             'previous_school'    => $data['previous_school'],
-            'last_grade_average' => $data['last_grade_average'],
+            'last_grade_average' => $request->input('last_grade_average'),
             'guardian_name'      => $data['guardian_name'],
-            'guardian_phone'     => $data['guardian_phone'],
+            'guardian_phone'     => $request->input('guardian_phone'),
         ]);
 
         // توليد الأسئلة العشوائية (سحب ذكي مع التعويض)
@@ -64,7 +80,7 @@ class ExamController extends Controller
 
             $subjectQuestions = \App\Models\Question::where('subject_id', $config->subject_id)
                 ->where('grade_id', $config->grade_id ?? $exam->grade_id)
-                ->with('choices')
+                ->with(['choices', 'subject'])
                 ->inRandomOrder()
                 ->get();
 

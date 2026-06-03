@@ -195,7 +195,7 @@
                     </div>
                     <div class="form-group">
                         <label><i class="bi bi-star-fill" style="color: var(--primary);"></i> معدل الصف السابق (%) <span>*</span></label>
-                        <input type="number" name="last_grade_average" class="form-control" value="{{ old('last_grade_average') }}" min="0" max="100" step="0.1" placeholder="مثال: 92.5" required>
+                        <input type="text" name="last_grade_average" class="form-control" value="{{ old('last_grade_average') }}" placeholder="مثال: 92.5 أو ٩٢.٥" required>
                     </div>
                 </div>
 

@@ -13,7 +13,7 @@ class Student extends Model
         'last_grade_average', 'guardian_name', 'guardian_phone',
     ];
 
-    protected $casts = ['last_grade_average' => 'float'];
+
 
     public function applyingGrade(): BelongsTo
     {
