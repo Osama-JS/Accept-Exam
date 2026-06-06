@@ -60,7 +60,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             [AcademicYearController::class, 'setCurrent'])->name('academic-years.set-current');
 
         // Exams
-        Route::resource('exams', ExamController::class)->except(['edit', 'update']);
+        Route::resource('exams', ExamController::class);
         Route::get('exams/{exam}/toggle', [ExamController::class, 'toggle'])->name('exams.toggle');
 
         // Results

@@ -121,18 +121,68 @@
     .btn-dots:hover, .options-dropdown.open .btn-dots { background: #f1f5f9; color: #1e293b; border-color: #e2e8f0; }
     
     .dropdown-menu {
-        position: absolute; left: 0; top: calc(100% + 8px); width: 200px; background: #fff;
-        border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;
-        opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s; z-index: 50;
+        position: absolute;
+        left: 0;
+        top: calc(100% + 8px);
+        width: 210px;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 14px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        padding: 6px;
     }
-    .options-dropdown.open .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+    .options-dropdown.open .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
     .dropdown-item {
-        display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-size: 13px; font-weight: 600;
-        color: #475569; text-decoration: none; transition: 0.2s; border: none; width: 100%; text-align: right; background: transparent; cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #475569;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        border: none;
+        width: 100%;
+        text-align: right;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 8px;
     }
-    .dropdown-item:hover { background: #f8fafc; color: var(--primary); }
-    .dropdown-item.danger:hover { background: #fef2f2; color: #ef4444; }
-    .dropdown-divider { height: 1px; background: #f1f5f9; margin: 4px 0; }
+    .dropdown-item i {
+        font-size: 16px;
+        transition: transform 0.15s ease;
+    }
+    .dropdown-item:hover {
+        background: #f1f5f9;
+        color: var(--primary);
+    }
+    .dropdown-item:hover i {
+        transform: scale(1.1);
+    }
+    .dropdown-item.danger {
+        color: #dc2626;
+    }
+    .dropdown-item.danger:hover {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+    .dropdown-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 6px;
+    }
 
     /* تأخر خفيف للمظهر المتجاوب للـ Ajax */
     #exams-list-container {
@@ -246,6 +296,7 @@
                     <button type="button" class="btn-dots" onclick="toggleDropdown(event, this)"><i class="bi bi-three-dots-vertical"></i></button>
                     <div class="dropdown-menu">
                         <a href="{{ route('admin.exams.show', $exam) }}" class="dropdown-item"><i class="bi bi-eye"></i> معاينة تفصيلية للأسئلة</a>
+                        <a href="{{ route('admin.exams.edit', $exam) }}" class="dropdown-item"><i class="bi bi-pencil"></i> تعديل إعدادات الاختبار</a>
                         <div class="dropdown-divider"></div>
                         <form id="del-form-{{ $exam->id }}" action="{{ route('admin.exams.destroy', $exam) }}" method="POST" style="margin:0;">
                             @csrf @method('DELETE')
@@ -334,27 +385,36 @@
     window.toggleDropdown = function(event, btn) {
         event.stopPropagation();
         const dropdown = btn.closest('.options-dropdown');
+        const card = btn.closest('.ex-card');
         const isOpen = dropdown.classList.contains('open');
         
-        // إغلاق جميع القوائم الأخرى المفتوحة
+        // إغلاق جميع القوائم الأخرى المفتوحة وإعادة ترتيب تكديس الكروت السابقة
         document.querySelectorAll('.options-dropdown.open').forEach(d => {
             if (d !== dropdown) {
                 d.classList.remove('open');
+                const parentCard = d.closest('.ex-card');
+                if (parentCard) parentCard.style.zIndex = '';
             }
         });
         
-        // فتح أو إغلاق القائمة الحالية
+        // فتح أو إغلاق القائمة الحالية مع رفع طبقة التكديس (z-index) لمنع التداخل
         if(isOpen) {
             dropdown.classList.remove('open');
+            if (card) card.style.zIndex = '';
         } else {
             dropdown.classList.add('open');
+            if (card) card.style.zIndex = '999';
         }
     }
 
-    // إغلاق القائمة عند النقر خارجها
+    // إغلاق القائمة عند النقر خارجها وإعادة تعيين طبقة التكديس للكروت
     document.addEventListener('click', function(e) {
         if(!e.target.closest('.options-dropdown')) {
-            document.querySelectorAll('.options-dropdown.open').forEach(d => d.classList.remove('open'));
+            document.querySelectorAll('.options-dropdown.open').forEach(d => {
+                d.classList.remove('open');
+                const parentCard = d.closest('.ex-card');
+                if (parentCard) parentCard.style.zIndex = '';
+            });
         }
     });
 
