@@ -203,7 +203,11 @@ class ExamController extends Controller
             if ($config) {
                 $diffs = $config->difficulties ?? [];
                 $qDiff = $questionObj->difficulty; // 'easy', 'medium', 'hard'
-                if (isset($diffs[$qDiff]) && is_array($diffs[$qDiff]) && isset($diffs[$qDiff]['marks'])) {
+                
+                // التأكد أن الإعدادات تستخدم توزع الصعوبات فعلياً (مجموع الأسئلة حسب الصعوبة أكبر من 0)
+                $diffSum = (int)($diffs['easy']['count'] ?? 0) + (int)($diffs['medium']['count'] ?? 0) + (int)($diffs['hard']['count'] ?? 0);
+                
+                if ($diffSum > 0 && isset($diffs[$qDiff]) && is_array($diffs[$qDiff]) && isset($diffs[$qDiff]['marks'])) {
                     $markPerQuestion = (int)$diffs[$qDiff]['marks'];
                 } else {
                     $markPerQuestion = (int)$config->marks_per_question;

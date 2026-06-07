@@ -91,3 +91,40 @@ Route::prefix('exam')->name('exam.')->group(function () {
     Route::post('session/submit', [StudentExamController::class, 'submit'])->name('submit');
     Route::get('result/{token}',  [StudentExamController::class, 'result'])->name('result');
 });
+
+// مسار مؤقت لإصلاح الدرجات (يُرجى حذفه بعد استخدامه على السيرفر الحي)
+Route::get('/fix-live-scores', function () {
+    foreach (App\Models\StudentExam::with(['exam.subjectConfigs', 'answers.question'])->get() as $examAttempt) {
+        $configsMap = $examAttempt->exam->subjectConfigs->keyBy('subject_id');
+        $totalScore = 0;
+        foreach ($examAttempt->answers as $ans) {
+            if ($ans->is_correct) {
+                $qObj = $ans->question;
+                $config = $configsMap[$qObj->subject_id] ?? null;
+                $markPerQuestion = 1;
+                
+                if ($config) {
+                    $diffs = $config->difficulties ?? [];
+                    $qDiff = $qObj->difficulty;
+                    $diffSum = (int)($diffs['easy']['count'] ?? 0) + (int)($diffs['medium']['count'] ?? 0) + (int)($diffs['hard']['count'] ?? 0);
+                    
+                    if ($diffSum > 0 && isset($diffs[$qDiff]) && is_array($diffs[$qDiff]) && isset($diffs[$qDiff]['marks'])) {
+                        $markPerQuestion = (int)$diffs[$qDiff]['marks'];
+                    } else {
+                        $markPerQuestion = (int)$config->marks_per_question;
+                    }
+                }
+                $totalScore += $markPerQuestion;
+            }
+        }
+        
+        $finalScore = round($totalScore);
+        $status = $finalScore >= $examAttempt->pass_marks ? 'pass' : 'fail';
+        
+        $examAttempt->update([
+            'score'  => $finalScore,
+            'status' => $status
+        ]);
+    }
+    return 'تم تحديث جميع الدرجات بنجاح! يرجى حذف هذا المسار فوراً للحفاظ على الأمان.';
+});
