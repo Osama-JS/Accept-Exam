@@ -95,6 +95,9 @@ Route::prefix('exam')->name('exam.')->group(function () {
 // مسار مؤقت لإصلاح الدرجات (يُرجى حذفه بعد استخدامه على السيرفر الحي)
 Route::get('/fix-live-scores', function () {
     foreach (App\Models\StudentExam::with(['exam.subjectConfigs', 'answers.question'])->get() as $examAttempt) {
+        if (!$examAttempt->exam) {
+            continue; // تخطي السجلات التي تم حذف اختباراتها
+        }
         $configsMap = $examAttempt->exam->subjectConfigs->keyBy('subject_id');
         $totalScore = 0;
         foreach ($examAttempt->answers as $ans) {
